@@ -14,11 +14,10 @@ type NavItem = {
 
 interface SidebarProps {
     currentPath: string;
-    isAdmin: boolean;
     onLogout: () => void;
 }
 
-export function Sidebar({ currentPath, isAdmin, onLogout }: SidebarProps) {
+export function Sidebar({ currentPath, onLogout }: SidebarProps) {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const navItems: NavItem[] = [

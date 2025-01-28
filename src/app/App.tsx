@@ -39,7 +39,6 @@ const App = ({ children }: { children: ReactNode }) => {
                     <div className="flex">
                         <Sidebar
                             currentPath={pathname}
-                            isAdmin={true}
                             onLogout={handleLogout}
                         />
                         <main className="flex-1 ml-64 bg-gray-50 min-h-screen">
