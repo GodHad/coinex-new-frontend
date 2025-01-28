@@ -491,7 +491,7 @@ export function Webhooks() {
                                                                         className="block w-full rounded-md border-gray-300 shadow-sm bg-white p-2 text-sm"
                                                                     />
                                                                     <button
-                                                                        onClick={() => copyToClipboard(webhook.url)}
+                                                                        onClick={() => copyToClipboard(`https://api.nothingparticular.com/api/webhooks/${isSubscribed ? '' : user?.email + '/'}${webhook.url}`)}
                                                                         className="p-2 text-gray-500 hover:text-gray-700"
                                                                         title="Copy to clipboard"
                                                                     >
