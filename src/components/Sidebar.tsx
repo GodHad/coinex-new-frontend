@@ -14,12 +14,11 @@ type NavItem = {
 
 interface SidebarProps {
     currentPath: string;
-    isPremium: boolean;
     isAdmin: boolean;
     onLogout: () => void;
 }
 
-export function Sidebar({ currentPath, isPremium, isAdmin, onLogout }: SidebarProps) {
+export function Sidebar({ currentPath, isAdmin, onLogout }: SidebarProps) {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const navItems: NavItem[] = [
@@ -33,13 +32,14 @@ export function Sidebar({ currentPath, isPremium, isAdmin, onLogout }: SidebarPr
         { title: 'Admin Panel', icon: <Shield className="w-5 h-5" />, path: '/admin', isAdmin: true },
     ];
 
+    const { user } = useContext(UserContext);
+    const isPremium = !!(user?.subscribed === 1 && user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now());
+
     const filteredNavItems = navItems.filter(item => {
-        if (item.isAdmin) return isAdmin;
-        if (item.isPremium) return isPremium || isAdmin;
+        if (item.isAdmin && !user?.isAdmin) return false;
+        if (item.isPremium && !isPremium) return isPremium || isAdmin;
         return true;
     });
-
-    const { user } = useContext(UserContext);
 
     return (
         <>

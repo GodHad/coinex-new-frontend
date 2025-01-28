@@ -39,7 +39,6 @@ const App = ({ children }: { children: ReactNode }) => {
                     <div className="flex">
                         <Sidebar
                             currentPath={pathname}
-                            isPremium={true}
                             isAdmin={true}
                             onLogout={handleLogout}
                         />
