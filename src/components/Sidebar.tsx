@@ -37,7 +37,7 @@ export function Sidebar({ currentPath, isAdmin, onLogout }: SidebarProps) {
 
     const filteredNavItems = navItems.filter(item => {
         if (item.isAdmin && !user?.isAdmin) return false;
-        if (item.isPremium && !isPremium) return isPremium || isAdmin;
+        if (item.isPremium && !isPremium) return false;
         return true;
     });
 
