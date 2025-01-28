@@ -50,7 +50,7 @@ export function History() {
     };
 
     const getStatusIcon = (status: number | undefined) => {
-        if (status === 0) 
+        if (status === 0)
             return <CheckCircle2 className="w-4 h-4" />;
         return <XCircle className="w-4 h-4" />;
     };
@@ -58,7 +58,7 @@ export function History() {
     const getStatusStyle = (status: number | undefined) => {
         console.log(status)
         if (status === 0)
-                return 'bg-green-100 text-green-700';
+            return 'bg-green-100 text-green-700';
         return 'bg-red-100 text-red-700';
     };
 
@@ -149,7 +149,7 @@ export function History() {
                     </div>
                 </div>
                 <div className="divide-y divide-gray-100">
-                    {histories.map((history) => (
+                    {histories.length > 0 ? histories.map((history) => (
                         <div key={history._id} className="p-4 hover:bg-gray-50 transition-colors">
                             {isPremium ? (
                                 // Premium view with full details
@@ -239,7 +239,12 @@ export function History() {
                                 </div>
                             )}
                         </div>
-                    ))}
+                    ))
+                        :
+                        <div className="w-full gap-1 px-4 py-4 text-center">
+                            No histories
+                        </div>
+                    }
                 </div>
                 {!isPremium && histories.length > 0 && (
                     <div className="p-6 bg-gradient-to-b from-transparent to-gray-50 text-center border-t border-gray-100">

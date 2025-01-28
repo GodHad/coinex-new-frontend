@@ -142,7 +142,7 @@ const APILogs = ({ isPremium }: { isPremium: boolean }) => {
                     </div>
                 ))}
             </div>
-            {histories.length > 0 &&
+            {histories.length > 0 ?
                 <div className="flex sm:flex-row flex-col sm:items-center items-start justify-between mt-4 gap-1 px-4">
                     <div className="col-sm-12 col-md-5">
                         <div
@@ -171,6 +171,10 @@ const APILogs = ({ isPremium }: { isPremium: boolean }) => {
                             </div>
                         )}
                     </div>
+                </div>
+                :
+                <div className="w-full gap-1 px-4 py-4 text-center">
+                    No logs
                 </div>
             }
             {/* {!isPremium && (
