@@ -1,3 +1,4 @@
+import { User } from "@/contexts/UserContext";
 import { AdminHook } from "./admin-hook";
 import { HistoryType } from "./history";
 
@@ -13,4 +14,7 @@ export type Webhook = {
     adminHook?: string | AdminHook;
     amount?: number;
     histories?: HistoryType[];
+    creator?: User;
+    createdAt?: Date;
+    updatedAt?: Date;
 };

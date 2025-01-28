@@ -1,29 +1,18 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Crown, Lock, ChevronDown, AlertTriangle, Clock, TrendingUp, LineChart, Eye, EyeOff, Check, Key, Settings } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import Image from 'next/image';
+import UserContext from '@/contexts/UserContext';
+import { AdminHook } from '@/types/admin-hook';
+import { getAdminHooks, insertHook, updateHook } from '@/utils/api';
+import { Webhook } from '@/types/hooks';
+import { toast } from 'react-toastify';
 
 type TimeFrame = '5m' | '1h' | '3h';
 type CryptoPair = 'BTC/USDT' | 'ETH/USDT' | 'SOL/USDT';
 
-type PremiumSignal = {
-  pair: CryptoPair;
-  timeframe: TimeFrame;
-  description: string;
-  image: string;
-  stats: {
-    winRate: string;
-    avgProfit: string;
-    signals: string;
-  };
-  riskLevel: 'High' | 'Medium' | 'Low';
-  recommendedLeverage: string;
-  enabled?: boolean;
-  apiConfigured?: boolean;
-};
-
-const getTimeframeDescription = (timeframe: TimeFrame, pair: CryptoPair): string => {
+const getTimeframeDescription = (timeframe: TimeFrame, pair: string): string => {
   const base = pair.split('/')[0];
   switch (timeframe) {
     case '5m':
@@ -35,7 +24,7 @@ const getTimeframeDescription = (timeframe: TimeFrame, pair: CryptoPair): string
   }
 };
 
-const getCryptoImage = (pair: CryptoPair): string => {
+const getCryptoImage = (pair: string): string => {
   switch (pair) {
     case 'BTC/USDT':
       return 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&q=80&w=400&h=300';
@@ -43,223 +32,227 @@ const getCryptoImage = (pair: CryptoPair): string => {
       return 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=400&h=300';
     case 'SOL/USDT':
       return 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=400&h=300';
+    default: return ''
   }
 };
 
-const createSignalData = (
-  pair: CryptoPair,
-  timeframe: TimeFrame,
-  riskLevel: 'High' | 'Medium' | 'Low',
-  recommendedLeverage: string,
-  signalsPerMonth: string,
-  winRate: string,
-  avgProfit: string
-): PremiumSignal => ({
-  pair,
-  timeframe,
-  description: getTimeframeDescription(timeframe, pair),
-  image: getCryptoImage(pair),
-  stats: {
-    winRate,
-    avgProfit,
-    signals: signalsPerMonth
-  },
-  riskLevel,
-  recommendedLeverage
-});
+export function Premium() {
+  const { user } = useContext(UserContext);
+  const isPremium = !!(user?.subscribed === 1 && user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now());
 
-const initialPremiumSignals: PremiumSignal[] = [
-  // BTC Signals
-  createSignalData('BTC/USDT', '5m', 'High', '5x-10x', '100-120/month', '68%', '1.2%'),
-  createSignalData('BTC/USDT', '1h', 'Medium', '10x-20x', '40-50/month', '76%', '2.8%'),
-  createSignalData('BTC/USDT', '3h', 'Low', '20x-50x', '15-20/month', '82%', '4.5%'),
-  
-  // ETH Signals
-  createSignalData('ETH/USDT', '5m', 'High', '5x-10x', '90-110/month', '65%', '1.5%'),
-  createSignalData('ETH/USDT', '1h', 'Medium', '10x-20x', '35-45/month', '72%', '3.2%'),
-  createSignalData('ETH/USDT', '3h', 'Low', '20x-50x', '12-15/month', '79%', '5.1%'),
-  
-  // SOL Signals
-  createSignalData('SOL/USDT', '5m', 'High', '3x-8x', '80-100/month', '63%', '1.8%'),
-  createSignalData('SOL/USDT', '1h', 'Medium', '8x-15x', '30-40/month', '70%', '3.8%'),
-  createSignalData('SOL/USDT', '3h', 'Low', '15x-30x', '10-12/month', '77%', '6.2%')
-];
-
-interface PremiumProps {
-  isPremium?: boolean;
-}
-
-export function Premium({ isPremium = true }: PremiumProps) {
-  const [signals, setSignals] = useState<PremiumSignal[]>(initialPremiumSignals.map(signal => ({
-    ...signal,
-    enabled: false,
-    apiConfigured: false
-  })));
-  const [showApiConfig, setShowApiConfig] = useState<string | null>(null);
-  const [apiKeys, setApiKeys] = useState<Record<string, { key: string; secret: string }>>({});
+  const [signals, setSignals] = useState<AdminHook[]>([]);
+  const [_signal, setSignal] = useState<AdminHook | null>(null);
+  const [webhook, setWebhook] = useState<Webhook>({
+    url: '',
+    name: '5m ' + _signal?.pair,
+    coinExApiKey: '',
+    coinExApiSecret: '',
+    tradeDirection: 'BOTH',
+    adminHook: _signal?._id,
+    status: 0,
+    amount: 0
+  });
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
 
-  const toggleSignal = (pair: string, timeframe: string) => {
-    setSignals(signals.map(signal => 
-      signal.pair === pair && signal.timeframe === timeframe
-        ? { ...signal, enabled: !signal.enabled }
-        : signal
-    ));
-  };
-
-  const saveApiConfig = (pair: string) => {
-    if (apiKeys[pair]?.key && apiKeys[pair]?.secret) {
-      setSignals(signals.map(signal =>
-        signal.pair === pair
-          ? { ...signal, apiConfigured: true }
-          : signal
-      ));
-      setShowApiConfig(null);
+  const toggleSignal = async (id: string | undefined, hook: Webhook | undefined) => {
+    if (!id || !hook) return;
+    hook.status = 1 - hook.status;
+    const result = await updateHook(hook, true);
+    if (result) {
+      setSignals(signals.map(w => w._id === id ? { ...w, hook: result.hook } : w));
+      toast.success(result.message);
     }
   };
 
-  const getTimeframeIcon = (timeframe: TimeFrame) => {
+  const saveApiConfig = async () => {
+    const result = !webhook._id ? await insertHook({...webhook, adminHook: _signal?._id}, true) : await updateHook({...webhook, adminHook: _signal?._id}, true);
+    if (result) {
+      setSignals(prev => prev.map(s => s._id === _signal?._id ? { ...s, hook: result.hook } : s));
+      toast.success(result.message);
+    }
+  };
+
+  const getTimeframeIcon = (timeframe: string) => {
     switch (timeframe) {
       case '5m':
         return <Clock className="w-4 h-4" />;
       case '1h':
         return <TrendingUp className="w-4 h-4" />;
-      case '3h':
+      default:
         return <LineChart className="w-4 h-4" />;
     }
   };
 
-  const renderApiConfig = (pair: CryptoPair) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold">Configure API for {pair}</h3>
-          <button
-            onClick={() => setShowApiConfig(null)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ChevronDown className="w-5 h-5" />
-          </button>
-        </div>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              API Key
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={apiKeys[pair]?.key || ''}
-                onChange={(e) => setApiKeys({
-                  ...apiKeys,
-                  [pair]: { ...apiKeys[pair], key: e.target.value }
-                })}
-                className="pl-10 w-full rounded-lg border-gray-300"
-                placeholder="Enter your API key"
-              />
-              <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-            </div>
+  const renderApiConfig = (signal: AdminHook) => {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold">Configure API for {signal.pair}</h3>
+            <button
+              onClick={() => {
+                setSignal(null);
+
+                setWebhook({
+                  url: '',
+                  name: '',
+                  coinExApiKey: '',
+                  coinExApiSecret: '',
+                  tradeDirection: 'BOTH',
+                  status: 0,
+                  adminHook: signal._id
+                });
+              }}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <ChevronDown className="w-5 h-5" />
+            </button>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              API Secret
-            </label>
-            <div className="relative">
-              <input
-                type={showSecrets[pair] ? 'text' : 'password'}
-                value={apiKeys[pair]?.secret || ''}
-                onChange={(e) => setApiKeys({
-                  ...apiKeys,
-                  [pair]: { ...apiKeys[pair], secret: e.target.value }
-                })}
-                className="pl-10 pr-10 w-full rounded-lg border-gray-300"
-                placeholder="Enter your API secret"
-              />
-              <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-              <button
-                type="button"
-                onClick={() => setShowSecrets({ ...showSecrets, [pair]: !showSecrets[pair] })}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                API Key
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={webhook?.coinExApiKey || ''}
+                  onChange={(e) => setWebhook(prev => ({
+                    ...prev,
+                    coinExApiKey: e.target.value
+                  }))}
+                  className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                  placeholder="Enter your API key"
+                />
+                <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+              </div>
+            </div>
+            {signal._id &&
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  API Secret
+                </label>
+                <div className="relative">
+                  <input
+                    type={showSecrets[signal._id] ? 'text' : 'password'}
+                    value={webhook.coinExApiSecret || ''}
+                    onChange={(e) => setWebhook(prev => ({
+                      ...prev,
+                      coinExApiSecret: e.target.value
+                    }))}
+                    className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                    placeholder="Enter your API secret"
+                  />
+                  <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                  <button
+                    type="button"
+                    onClick={() => setShowSecrets({ ...showSecrets, [signal._id as string]: !showSecrets[signal._id as string] })}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                  >
+                    {showSecrets[signal._id] ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            }
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Trade Amount
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={webhook.amount || ''}
+                  onChange={(e) => setWebhook(prev => ({
+                    ...prev,
+                    amount: Number(e.target.value)
+                  }))}
+                  className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                  placeholder="Enter your amount"
+                />
+                <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Trade Direction
+              </label>
+              <select
+                className="pl-2 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                name="tradeDirection"
+                id="tradeDirection"
+                value={webhook?.tradeDirection}
+                onChange={(e) => setWebhook(prev => ({ ...prev, tradeDirection: e.target.value }))}
               >
-                {showSecrets[pair] ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
+                <option value="BOTH">BOTH</option>
+                <option value="LONG_ONLY">Long Only</option>
+                <option value="SHORT_ONLY">Short Only</option>
+              </select>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div className="text-sm text-blue-800">
+                  <p className="font-medium mb-1">Important Security Notes:</p>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Enable only trading permissions for these API keys</li>
+                    <li>Disable withdrawals for additional security</li>
+                    <li>Use IP restrictions when possible</li>
+                    <li>Never share your API keys with anyone</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setSignal(null)
+                  setWebhook({
+                    url: '',
+                    name: '',
+                    coinExApiKey: '',
+                    coinExApiSecret: '',
+                    tradeDirection: 'BOTH',
+                    status: 0,
+                    adminHook: signal._id
+                  });
+                }}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => saveApiConfig()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Save Configuration
               </button>
             </div>
           </div>
-
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">Important Security Notes:</p>
-                <ul className="list-disc pl-4 space-y-1">
-                  <li>Enable only trading permissions for these API keys</li>
-                  <li>Disable withdrawals for additional security</li>
-                  <li>Use IP restrictions when possible</li>
-                  <li>Never share your API keys with anyone</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={() => setShowApiConfig(null)}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => saveApiConfig(pair)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Save Configuration
-            </button>
-          </div>
         </div>
       </div>
-    </div>
-  );
+    )
+  };
 
   const renderSignalsByPair = (pair: CryptoPair) => {
     const pairSignals = signals.filter(signal => signal.pair === pair);
-    const isConfigured = pairSignals.some(signal => signal.apiConfigured);
-    
+
     return (
       <div className="mb-12 last:mb-0">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">{pair} Signals</h2>
-          {isPremium && (
-            <button
-              onClick={() => setShowApiConfig(pair)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                isConfigured
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            >
-              {isConfigured ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  API Configured
-                </>
-              ) : (
-                <>
-                  <Settings className="w-4 h-4" />
-                  Configure API
-                </>
-              )}
-            </button>
-          )}
         </div>
         <div className="grid gap-8 md:grid-cols-3">
           {pairSignals.map((signal) => (
-            <div key={`${signal.pair}-${signal.timeframe}`} className="relative bg-white rounded-xl shadow-md overflow-hidden group">
+            <div key={`${signal.pair}-${signal.timeframe || '5m'}`} className="relative bg-white rounded-xl shadow-md overflow-hidden group">
               {!isPremium && (
                 <div className="absolute inset-0 backdrop-blur-[6px] bg-white/30 z-10 flex items-center justify-center">
                   <div className="text-center">
@@ -269,7 +262,7 @@ export function Premium({ isPremium = true }: PremiumProps) {
                 </div>
               )}
               <Image
-                src={signal.image}
+                src={getCryptoImage(signal.pair)}
                 alt={signal.pair}
                 className="w-full h-48 object-cover"
                 width={400}
@@ -278,39 +271,38 @@ export function Premium({ isPremium = true }: PremiumProps) {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    {getTimeframeIcon(signal.timeframe)}
+                    {getTimeframeIcon(signal?.timeframe || '5m')}
                     <h3 className="text-xl font-bold">{signal.timeframe} Chart</h3>
                   </div>
-                  {isPremium && signal.apiConfigured && (
+                  {isPremium && signal?.hook && (
                     <button
-                      onClick={() => toggleSignal(signal.pair, signal.timeframe)}
-                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                        signal.enabled
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
+                      onClick={() => toggleSignal(signal._id, signal.hook)}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${signal.hook.status === 0
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                        }`}
                     >
-                      {signal.enabled ? 'Enabled' : 'Disabled'}
+                      {signal.hook.status === 0 ? 'Enabled' : 'Disabled'}
                     </button>
                   )}
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-600 text-sm">{signal.description}</p>
+                  <p className="text-gray-600 text-sm">{getTimeframeDescription('5m', signal.pair)}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 text-center mb-4">
                   <div>
                     <p className="text-sm text-gray-500">Win Rate</p>
-                    <p className="font-bold text-green-600">{signal.stats.winRate}</p>
+                    <p className="font-bold text-green-600">{0}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Avg. Profit</p>
-                    <p className="font-bold text-green-600">{signal.stats.avgProfit}</p>
+                    <p className="font-bold text-green-600">{0}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Signals</p>
-                    <p className="font-bold text-blue-600">{signal.stats.signals}</p>
+                    <p className="font-bold text-blue-600">{0}</p>
                   </div>
                 </div>
 
@@ -318,7 +310,7 @@ export function Premium({ isPremium = true }: PremiumProps) {
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-yellow-600" />
                     <span className="text-sm font-medium">Recommended Leverage:</span>
-                    <span className="text-sm text-gray-600">{signal.recommendedLeverage}</span>
+                    <span className="text-sm text-gray-600">10x</span>
                   </div>
                   {signal.timeframe === '5m' && (
                     <p className="text-xs text-gray-500">
@@ -327,12 +319,51 @@ export function Premium({ isPremium = true }: PremiumProps) {
                   )}
                 </div>
               </div>
+              <div className="flex justify-center mb-2">
+                {isPremium && (
+                  <button
+                    onClick={() => {
+                      setSignal(signal);
+                      if (signal.hook) setWebhook(signal.hook)
+                    }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${signal.hook
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                  >
+                    {signal.hook ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        API Configured
+                      </>
+                    ) : (
+                      <>
+                        <Settings className="w-4 h-4" />
+                        Configure API
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
       </div>
     );
   };
+
+  const handleGetAdminHooks = async () => {
+    try {
+      const _adminHooks = await getAdminHooks();
+      setSignals(_adminHooks);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    handleGetAdminHooks();
+  }, [])
 
   if (!isPremium) {
     return (
@@ -390,7 +421,7 @@ export function Premium({ isPremium = true }: PremiumProps) {
         {renderSignalsByPair('ETH/USDT')}
         {renderSignalsByPair('SOL/USDT')}
 
-        {showApiConfig && renderApiConfig(showApiConfig as CryptoPair)}
+        {_signal && renderApiConfig(_signal)}
       </div>
     </div>
   );

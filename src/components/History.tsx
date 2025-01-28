@@ -49,26 +49,17 @@ export function History() {
         }
     };
 
-    const getStatusIcon = (status: number) => {
-        switch (status) {
-            case 0:
-                return <CheckCircle2 className="w-4 h-4" />;
-            default:
-                return <XCircle className="w-4 h-4" />;
-            // case 'warning':
-            //     return <AlertTriangle className="w-4 h-4" />;
-        }
+    const getStatusIcon = (status: number | undefined) => {
+        if (status === 0) 
+            return <CheckCircle2 className="w-4 h-4" />;
+        return <XCircle className="w-4 h-4" />;
     };
 
-    const getStatusStyle = (status: number) => {
-        switch (status) {
-            case 0:
+    const getStatusStyle = (status: number | undefined) => {
+        console.log(status)
+        if (status === 0)
                 return 'bg-green-100 text-green-700';
-            default:
-                return 'bg-red-100 text-red-700';
-            // case 'warning':
-            //     return 'bg-yellow-100 text-yellow-700';
-        }
+        return 'bg-red-100 text-red-700';
     };
 
     const [histories, setHistories] = useState<HistoryType[]>([]);
@@ -178,8 +169,8 @@ export function History() {
                                         <span className="text-sm text-gray-500">{moment(history.createdAt).format('YYYY-MM-DD hh:mm:ss')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(history.data?.code || 1)}`}>
-                                            {getStatusIcon(history.data?.code || 1)}
+                                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(history.data?.code)}`}>
+                                            {getStatusIcon(history.data?.code)}
                                             {history.data?.code === 0 ? 'Success' : 'Failed'}
                                         </span>
                                         <span className="text-sm font-medium text-gray-700 uppercase">{history.action}</span>
@@ -206,7 +197,7 @@ export function History() {
                                                 <div>
                                                     <p className="text-sm text-gray-500">ROI</p>
                                                     <p className={`font-medium ${Number(history.data.data.realized_pnl) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {Number(history.data.data.realized_pnl) >= 0 ? '+' : ''}{Number(history.data.data.realized_pnl) / Number(history.data.data.filled_value)}%
+                                                        {Number(history.data.data.realized_pnl) >= 0 ? '+' : ''}{(Number(history.data.data.realized_pnl) / Number(history.data.data.filled_value)).toFixed(3)}%
                                                     </p>
                                                 </div>
                                                 <div>
@@ -228,8 +219,8 @@ export function History() {
                                         <div>
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium">{(history.hook as Webhook).name}</span>
-                                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(history.data?.code || 0)}`}>
-                                                    {getStatusIcon(history.data?.code || 0)}
+                                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(history.data?.code)}`}>
+                                                    {getStatusIcon(history.data?.code)}
                                                 </span>
                                             </div>
                                             <p className="text-sm text-gray-500 mt-1">{moment(history.createdAt).format('YYYY-MM-DD hh:mm:ss')}</p>

@@ -179,7 +179,16 @@ export const deleteUser = async (id: string) => {
 }
 
 export const getAdminHooks = async () => {
-    const response = await axios.get(`${backendUrl}api/admin/hooks`, {
+    const response = await axios.get(`${backendUrl}api/hooks/admin-hooks`, {
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    });
+    return response.data;
+}
+
+export const getGeneralHooks = async () => {
+    const response = await axios.get(`${backendUrl}api/admin/all-hooks`, {
         headers: {
             Authorization: `Bearer ${getToken()}`
         }
@@ -222,6 +231,21 @@ export const deleteAdminHook = async (id: string) => {
                 Authorization: `Bearer ${getToken()}`
             }
         });
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
+
+export const getOverview = async () => {
+    try {
+        const response = await axios.get(`${backendUrl}api/admin/overview`, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        });
+
         return response.data;
     } catch (error: any) {
         toast.error(error.response.data.message || error.message || error);

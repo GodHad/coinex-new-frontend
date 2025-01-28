@@ -10,6 +10,8 @@ export type User = {
     isAdmin?: boolean;
     subscribed?: number;
     subscribeEndDate?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 type UserContextType = {

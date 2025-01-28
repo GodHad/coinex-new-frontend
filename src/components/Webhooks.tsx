@@ -10,9 +10,9 @@ import moment from 'moment';
 import APILogs from './ApiLogs';
 
 const directions = [
-    {content: 'Long Only', value: 'LONG_ONLY'}, 
-    {content: 'Short Only', value: 'SHORT_ONLY'}, 
-    {content: 'Both', value: 'BOTH'}
+    { content: 'Long Only', value: 'LONG_ONLY' },
+    { content: 'Short Only', value: 'SHORT_ONLY' },
+    { content: 'Both', value: 'BOTH' }
 ];
 
 export function Webhooks() {
@@ -56,24 +56,24 @@ export function Webhooks() {
     }, [jwtToken]);
 
     const generateWebhook = async () => {
-            const result = await insertHook(webhook, false);
-            if (result) {
-                setWebhooks([...webhooks, result.hook]);
-                toast.success(result.message);
-                setWebhook({
-                    url: '',
-                    name: '',
-                    coinExApiKey: '',
-                    coinExApiSecret: '',
-                    tradeDirection: 'BOTH',
-                    status: 0,
-                });
-            }
+        const result = await insertHook(webhook, false);
+        if (result) {
+            setWebhooks([...webhooks, result.hook]);
+            toast.success(result.message);
+            setWebhook({
+                url: '',
+                name: '',
+                coinExApiKey: '',
+                coinExApiSecret: '',
+                tradeDirection: 'BOTH',
+                status: 0,
+            });
+        }
     };
 
     const toggleWebhook = async (_webhook: Webhook) => {
         _webhook.status = 1 - _webhook.status;
-        const result  = await updateHook(_webhook, false);
+        const result = await updateHook(_webhook, false);
         if (result) {
             setWebhooks(webhooks.map(w => w._id === _webhook._id ? result.hook : w));
             toast.success(result.message);
@@ -161,11 +161,11 @@ export function Webhooks() {
                                 </span>
                                 <span className="font-medium capitalize">
                                     {
-                                    !entry.positionState ? entry.action : 
-                                        entry.positionState === 'neutral' ? 'Position Closed' :
-                                        entry.positionState === 'short' ? (entry.action === 'buy' ? 'Short Position Closed' : 'Long Position Opened') : (
-                                            entry.action === 'sell' ? 'Short Position Opened' : 'Long Position Closed'
-                                        )
+                                        !entry.positionState ? entry.action :
+                                            entry.positionState === 'neutral' ? 'Position Closed' :
+                                                entry.positionState === 'short' ? (entry.action === 'buy' ? 'Short Position Closed' : 'Long Position Opened') : (
+                                                    entry.action === 'sell' ? 'Short Position Opened' : 'Long Position Closed'
+                                                )
                                     }
                                 </span>
                             </div>
@@ -325,7 +325,7 @@ export function Webhooks() {
                                                 <button
                                                     key={option.value}
                                                     onClick={() => {
-                                                        setWebhook((prev) => ({...prev, tradeDirection: option.value}));
+                                                        setWebhook((prev) => ({ ...prev, tradeDirection: option.value }));
                                                         setIsDropdownOpen(false);
                                                     }}
                                                     className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
