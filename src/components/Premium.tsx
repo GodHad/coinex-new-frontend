@@ -271,14 +271,14 @@ export function Premium() {
         <div className="grid gap-8 md:grid-cols-3">
           {pairSignals.map((signal) => (
             <div key={`${signal.pair}-${signal.timeframe || '5m'}`} className="relative bg-white rounded-xl shadow-md overflow-hidden group">
-              {!isPremium && (
+              {/* {!isPremium && (
                 <div className="absolute inset-0 backdrop-blur-[6px] bg-white/30 z-10 flex items-center justify-center">
                   <div className="text-center">
                     <Lock className="w-8 h-8 text-gray-800 mx-auto mb-2" />
                     <p className="text-gray-800 font-medium">Premium Feature</p>
                   </div>
                 </div>
-              )}
+              )} */}
               <Image
                 src={getCryptoImage(signal.pair)}
                 alt={signal.pair}
@@ -292,7 +292,7 @@ export function Premium() {
                     {getTimeframeIcon(signal?.timeframe || '5m')}
                     <h3 className="text-xl font-bold">{signal.timeframe} Chart</h3>
                   </div>
-                  {isPremium && signal?.hook && (
+                  {signal?.hook && (
                     <button
                       onClick={() => toggleSignal(signal._id, signal.hook)}
                       className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${signal.hook.status === 0
@@ -338,7 +338,7 @@ export function Premium() {
                 </div>
               </div>
               <div className="flex justify-center mb-2">
-                {isPremium && (
+                {(
                   <button
                     onClick={() => {
                       setSignal(signal);
@@ -347,7 +347,8 @@ export function Premium() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${signal.hook
                       ? 'bg-green-100 text-green-800 hover:bg-green-200'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
+                      } disabled:bg-gray-500 disabled:cursor-not-allowed`}
+                    disabled={!isPremium}
                   >
                     {signal.hook ? (
                       <>

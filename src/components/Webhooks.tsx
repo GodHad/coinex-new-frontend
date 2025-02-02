@@ -180,7 +180,7 @@ export function Webhooks() {
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-gray-500">Net PnL</span>
                                     <span className={`font-medium ${entry.data?.data.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                        {entry.data?.data.realized_pnl >= 0 ? '+' : ''}{entry.data?.data.realized_pnl.toFixed(2)} USDT
+                                        {Number(entry.data?.data.realized_pnl) >= 0 ? '+' : ''}{Number(entry.data?.data.realized_pnl).toFixed(2)} USDT
                                     </span>
                                 </div>
                             </div>
