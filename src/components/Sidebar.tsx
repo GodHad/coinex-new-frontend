@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Webhook, History, Crown, Shield, LogOut, Wrench, Gift } from 'lucide-react';
+import { Webhook, History, Crown, Shield, LogOut, Wrench, Gift, LayoutDashboard } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import UserContext from '@/contexts/UserContext';
@@ -21,9 +21,9 @@ export function Sidebar({ currentPath, onLogout }: SidebarProps) {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const navItems: NavItem[] = [
+        { title: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard' },
         { title: 'Standard Webhooks', icon: <Webhook className="w-5 h-5" />, path: '/webhooks' },
-        { title: 'Premium Signals', icon: <Crown className="w-5 h-5" />, path: '/premium', isPremium: true },
-        // { title: 'P2P Trading', icon: <Users className="w-5 h-5" />, path: '/p2p-trading' },
+        { title: 'Premium Signals', icon: <Crown className="w-5 h-5" />, path: '/premium' },
         // { title: 'Favorite API Keys', icon: <Star className="w-5 h-5" />, path: '/api-keys' },
         { title: 'Trading Tools', icon: <Wrench className="w-5 h-5" />, path: '/tools' },
         { title: 'History', icon: <History className="w-5 h-5" />, path: '/history' },
@@ -61,7 +61,7 @@ export function Sidebar({ currentPath, onLogout }: SidebarProps) {
                                         {item.icon}
                                         <span>{item.title}</span>
                                     </div>
-                                    {item.isPremium && (
+                                    {(item.isPremium || item.path === '/premium') && (
                                         <Crown className={`w-4 h-4 ${isPremium ? 'text-yellow-500' : 'text-gray-500'}`} />
                                     )}
                                     {item.isAdmin && (

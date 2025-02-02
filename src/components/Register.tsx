@@ -33,7 +33,7 @@ export function Register() {
                 password: ''
             })
             window.localStorage.setItem('jwtToken', result.token);
-            redirect('/webhooks');
+            redirect('/dashboard');
         }
     }
 

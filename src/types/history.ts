@@ -15,5 +15,6 @@ export type HistoryType = {
     };
     source?: string;
     tradeDirection?: string;
+    isResended?: boolean;
     createdAt: Date;
 }

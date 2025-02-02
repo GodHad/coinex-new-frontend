@@ -1,12 +1,13 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Users, Activity, AlertTriangle, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, Check, X, ChevronDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Users, Activity, AlertTriangle, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, Check, X, ChevronDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import { User } from '@/contexts/UserContext';
 import { deleteUser, getGeneralHooks, getOverview, getUsers, updateSubscribe } from '@/utils/api';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { Webhook } from '@/types/hooks';
+import AdminWebHook from './AdminWebHook';
 
 type TradingPair = {
     id: string;
@@ -20,7 +21,7 @@ const convertPercent = (percent: number) => {
 }
 
 export function AdminPanel() {
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'webhooks' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'webhooks' | 'settings' | 'adminWebhooks'>('overview');
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
     const [overview, setOverview] = useState<Record<string, number>>({})
@@ -369,7 +370,7 @@ export function AdminPanel() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {webhook.tradeDirection === 'BOTH' ? (
-                                        <ArrowUpRight className="w-4 h-4" />
+                                        <ArrowLeftRight className="w-4 h-4" />
                                     ) : webhook.tradeDirection === 'LONG_ONLY' ? (
                                         <ArrowUpRight className="w-4 h-4 text-green-500" />
                                     ) : (
@@ -514,6 +515,15 @@ export function AdminPanel() {
                         >
                             Settings
                         </button>
+                        <button
+                            onClick={() => setActiveTab('adminWebhooks')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'adminWebhooks'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                        >
+                            Admin Webhooks
+                        </button>
                     </div>
                 </div>
 
@@ -521,6 +531,7 @@ export function AdminPanel() {
                 {activeTab === 'users' && renderUsers()}
                 {activeTab === 'webhooks' && renderWebhooks()}
                 {activeTab === 'settings' && renderSettings()}
+                {activeTab === 'adminWebhooks' && <AdminWebHook />}
             </div>
         </div>
     );

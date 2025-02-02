@@ -501,7 +501,7 @@ export function Webhooks() {
                                                                 <div className="text-sm text-gray-500">
                                                                     <p>API ID: {webhook.coinExApiKey}</p>
                                                                     <p>API Secret: •••••••••••</p>
-                                                                    {webhook.amount && <p>Trade Amount: {webhook.amount} {'SOL'}</p>}
+                                                                    {!!webhook.amount && (<p>Trade Amount: {webhook.amount} {'SOL'}</p>)}
                                                                 </div>
                                                             </div>
                                                         )}

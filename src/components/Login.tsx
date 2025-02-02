@@ -27,7 +27,7 @@ export function Login() {
       setEmail('');
       setPassword('');
       window.localStorage.setItem('jwtToken', result.token);
-      redirect('/webhooks');
+      redirect('/dashboard');
     }
   };
 
@@ -42,7 +42,7 @@ export function Login() {
         setEmail('');
         setPassword('');
         window.localStorage.setItem('jwtToken', result.token);
-        redirect('/webhooks');
+        redirect('/dashboard');
       }
     }
   }

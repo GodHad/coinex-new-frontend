@@ -65,7 +65,7 @@ export function Premium() {
   };
 
   const saveApiConfig = async () => {
-    const result = !webhook._id ? await insertHook({...webhook, adminHook: _signal?._id}, true) : await updateHook({...webhook, adminHook: _signal?._id}, true);
+    const result = !webhook._id ? await insertHook({ ...webhook, adminHook: _signal?._id }, true) : await updateHook({ ...webhook, adminHook: _signal?._id }, true);
     if (result) {
       setSignals(prev => prev.map(s => s._id === _signal?._id ? { ...s, hook: result.hook } : s));
       toast.success(result.message);
@@ -110,6 +110,24 @@ export function Premium() {
           </div>
 
           <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Webhook Name
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={webhook?.name || ''}
+                  onChange={(e) => setWebhook(prev => ({
+                    ...prev,
+                    name: e.target.value
+                  }))}
+                  className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                  placeholder="Enter webhook name"
+                />
+                <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 API Key

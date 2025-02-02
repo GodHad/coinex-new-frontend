@@ -1,11 +1,11 @@
 'use client';
 import React, { useContext, useEffect, useState } from 'react';
-import { Crown, ArrowUpRight, ArrowDownRight, ArrowRightLeft, CheckCircle2, XCircle, Users } from 'lucide-react';
+import { Crown, ArrowUpRight, ArrowDownRight, ArrowRightLeft, CheckCircle2, XCircle, Users, Send } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import UserContext from '@/contexts/UserContext';
 import { HistoryType } from '@/types/history';
 import { Pagination } from '@/types/pagination';
-import { getHistories } from '@/utils/api';
+import { getHistories, resentHistory } from '@/utils/api';
 import { Webhook } from '@/types/hooks';
 import moment from 'moment';
 
@@ -81,6 +81,14 @@ export function History() {
         if (result) {
             setHistories(result.histories);
             setPagination(result.pagination);
+        }
+    }
+
+    const handleResent = async (id: string) => {
+        const result = await resentHistory(id);
+
+        if (result) {
+            setHistories(prev => prev.map(history => history._id === result.history._id ? result.history : history));
         }
     }
 
@@ -168,22 +176,35 @@ export function History() {
                                         </div>
                                         <span className="text-sm text-gray-500">{moment(history.createdAt).format('YYYY-MM-DD hh:mm:ss')}</span>
                                     </div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(history.data?.code)}`}>
-                                            {getStatusIcon(history.data?.code)}
-                                            {history.data?.code === 0 ? 'Success' : 'Failed'}
-                                        </span>
-                                        <span className="text-sm font-medium text-gray-700 uppercase">{history.action}</span>
-                                        <span className="text-sm text-gray-500">•</span>
-                                        <span className="text-sm text-gray-600">
-                                            {
-                                                !history.positionState ? history.action :
-                                                    history.positionState === 'neutral' ? 'Position Closed' :
-                                                        history.positionState === 'short' ? (history.action === 'buy' ? 'Short Position Closed' : 'Long Position Opened') : (
-                                                            history.action === 'sell' ? 'Short Position Opened' : 'Long Position Closed'
-                                                        )
-                                            }
-                                        </span>
+                                    <div className="flex items-center mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(history.data?.code)}`}>
+                                                {getStatusIcon(history.data?.code)}
+                                                {history.data?.code === 0 ? 'Success' : 'Failed'}
+                                            </span>
+                                            <span className="text-sm font-medium text-gray-700 uppercase">{history.action}</span>
+                                            <span className="text-sm text-gray-500">•</span>
+                                            <span className="text-sm text-gray-600">
+                                                {
+                                                    !history.positionState ? history.action :
+                                                        history.positionState === 'neutral' ? 'Position Closed' :
+                                                            history.positionState === 'short' ? (history.action === 'buy' ? 'Short Position Closed' : 'Long Position Opened') : (
+                                                                history.action === 'sell' ? 'Short Position Opened' : 'Long Position Closed'
+                                                            )
+                                                }
+                                            </span>
+                                        </div>
+                                        {
+                                            history.data?.code !== 0 &&
+                                            <button
+                                                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(history.data?.code)}`}
+                                                disabled={!!history.isResended}
+                                                onClick={() => handleResent(history._id || '')}
+                                            >
+                                                <Send className='w-4 h-4' />
+                                                {history.isResended ? 'Already Resent' : 'Resend'}
+                                            </button>
+                                        }
                                     </div>
                                     {history.data?.code === 0 && history.data.data && (
                                         <div className="mt-2 p-3 bg-gray-50 rounded-lg">

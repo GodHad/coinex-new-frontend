@@ -252,3 +252,33 @@ export const getOverview = async () => {
         return false;
     }
 }
+
+export const resentHistory = async (id: string) => {
+    try {
+        const response = await axios.get(`${backendUrl}api/webhooks/resend/${id}`, {
+            headers: {
+                Authorization: `Bear ${getToken()}`
+            }
+        });
+
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
+
+export const getDashboardOverview = async (jwtToken: string) => {
+    try {
+        const response = await axios.get(`${backendUrl}api/users/get-overview`, {
+            headers: {
+                Authorization: jwtToken
+            }
+        });
+
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
