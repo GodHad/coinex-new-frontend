@@ -1,6 +1,6 @@
 'use client';
 import React, { useContext, useEffect, useState } from 'react';
-import { Crown, Lock, ChevronDown, AlertTriangle, Clock, TrendingUp, LineChart, Eye, EyeOff, Check, Key, Settings } from 'lucide-react';
+import { Crown, ChevronDown, AlertTriangle, Clock, TrendingUp, LineChart, Eye, EyeOff, Check, Key, Settings } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import Image from 'next/image';
 import UserContext from '@/contexts/UserContext';
