@@ -149,9 +149,15 @@ export default function AdminWebHook() {
                                 }))}
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
                             >
+                                <option value={'5m'}>5m</option>
+                                <option value={'15m'}>15m</option>
                                 <option value={'30m'}>30m</option>
+                                <option value={'45m'}>45m</option>
                                 <option value={'1h'}>1h</option>
+                                <option value={'2h'}>1h</option>
+                                <option value={'3h'}>1h</option>
                                 <option value={'4h'}>4h</option>
+                                <option value={'1d'}>1d</option>
                             </select>
                         </div>
                         <button
@@ -243,9 +249,15 @@ export default function AdminWebHook() {
                                                                     }) : null)}
                                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
                                                                 >
+                                                                    <option value={'5m'}>5m</option>
+                                                                    <option value={'15m'}>15m</option>
                                                                     <option value={'30m'}>30m</option>
+                                                                    <option value={'45m'}>45m</option>
                                                                     <option value={'1h'}>1h</option>
+                                                                    <option value={'2h'}>1h</option>
+                                                                    <option value={'3h'}>1h</option>
                                                                     <option value={'4h'}>4h</option>
+                                                                    <option value={'1d'}>1d</option>
                                                                 </select>
                                                             </div>
                                                             <div className="flex justify-end gap-2 mt-3">
