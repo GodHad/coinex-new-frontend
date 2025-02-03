@@ -9,17 +9,18 @@ import { getAdminHooks, insertHook, updateHook } from '@/utils/api';
 import { Webhook } from '@/types/hooks';
 import { toast } from 'react-toastify';
 
-type TimeFrame = '5m' | '1h' | '3h';
+type TimeFrame = '30m' | '1h' | '4h';
 type CryptoPair = 'BTC/USDT' | 'ETH/USDT' | 'SOL/USDT';
 
 const getTimeframeDescription = (timeframe: TimeFrame, pair: string): string => {
   const base = pair.split('/')[0];
+  console.log("time ", timeframe)
   switch (timeframe) {
-    case '5m':
+    case '30m':
       return `Short-term ${base} scalping signals optimized for quick trades. Higher volatility but more frequent opportunities.`;
     case '1h':
       return `Medium-term ${base} trading signals with balanced risk-reward. Ideal for day trading with clearer trend confirmation.`;
-    case '3h':
+    case '4h':
       return `Long-term ${base} position trading focusing on macro trends. Lower frequency but higher probability setups.`;
   }
 };
@@ -44,7 +45,7 @@ export function Premium() {
   const [_signal, setSignal] = useState<AdminHook | null>(null);
   const [webhook, setWebhook] = useState<Webhook>({
     url: '',
-    name: '5m ' + _signal?.pair,
+    name: '30m ' + _signal?.pair,
     coinExApiKey: '',
     coinExApiSecret: '',
     tradeDirection: 'BOTH',
@@ -74,7 +75,7 @@ export function Premium() {
 
   const getTimeframeIcon = (timeframe: string) => {
     switch (timeframe) {
-      case '5m':
+      case '30m':
         return <Clock className="w-4 h-4" />;
       case '1h':
         return <TrendingUp className="w-4 h-4" />;
@@ -270,7 +271,7 @@ export function Premium() {
         </div>
         <div className="grid gap-8 md:grid-cols-3">
           {pairSignals.map((signal) => (
-            <div key={`${signal.pair}-${signal.timeframe || '5m'}`} className="relative bg-white rounded-xl shadow-md overflow-hidden group">
+            <div key={`${signal.pair}-${signal.timeframe || '30m'}`} className="relative bg-white rounded-xl shadow-md overflow-hidden group">
               {/* {!isPremium && (
                 <div className="absolute inset-0 backdrop-blur-[6px] bg-white/30 z-10 flex items-center justify-center">
                   <div className="text-center">
@@ -289,7 +290,7 @@ export function Premium() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    {getTimeframeIcon(signal?.timeframe || '5m')}
+                    {getTimeframeIcon(signal?.timeframe || '30m')}
                     <h3 className="text-xl font-bold">{signal.timeframe} Chart</h3>
                   </div>
                   {signal?.hook && (
@@ -306,21 +307,21 @@ export function Premium() {
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-600 text-sm">{getTimeframeDescription('5m', signal.pair)}</p>
+                  <p className="text-gray-600 text-sm">{getTimeframeDescription(signal.timeframe as TimeFrame || '30m', signal.pair)}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 text-center mb-4">
                   <div>
                     <p className="text-sm text-gray-500">Win Rate</p>
-                    <p className="font-bold text-green-600">{0}</p>
+                    <p className="font-bold text-green-600">{signal.winRate || 0}%</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Avg. Profit</p>
-                    <p className="font-bold text-green-600">{0}</p>
+                    <p className="font-bold text-green-600">${signal.avgPnl || 0}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Signals</p>
-                    <p className="font-bold text-blue-600">{0}</p>
+                    <p className="font-bold text-blue-600">{signal.signals}</p>
                   </div>
                 </div>
 
@@ -330,7 +331,7 @@ export function Premium() {
                     <span className="text-sm font-medium">Recommended Leverage:</span>
                     <span className="text-sm text-gray-600">10x</span>
                   </div>
-                  {signal.timeframe === '5m' && (
+                  {signal.timeframe === '30m' && (
                     <p className="text-xs text-gray-500">
                       High volatility - use strict position sizing and isolated margin
                     </p>
@@ -347,20 +348,27 @@ export function Premium() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${signal.hook
                       ? 'bg-green-100 text-green-800 hover:bg-green-200'
                       : 'bg-blue-600 text-white hover:bg-blue-700'
-                      } disabled:bg-gray-500 disabled:cursor-not-allowed`}
+                      } disabled:bg-yellow-400 disabled:cursor-not-allowed mx-4`}
                     disabled={!isPremium}
                   >
-                    {signal.hook ? (
-                      <>
-                        <Check className="w-4 h-4" />
-                        API Configured
-                      </>
-                    ) : (
-                      <>
-                        <Settings className="w-4 h-4" />
-                        Configure API
-                      </>
-                    )}
+                    {isPremium ? 
+                      signal.hook ? (
+                        <>
+                          <Check className="w-4 h-4" />
+                          API Configured
+                        </>
+                      ) : (
+                        <>
+                          <Settings className="w-4 h-4" />
+                          Configure API
+                        </>
+                      ) : (
+                        <>
+                          <Crown className="w-4 h-4" />
+                          Upgrade To Premium
+                        </>
+                      )
+                    }
                   </button>
                 )}
               </div>

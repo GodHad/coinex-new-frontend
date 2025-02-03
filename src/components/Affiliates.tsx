@@ -23,38 +23,39 @@ type Exchange = {
     assets: string;
   };
   affiliateLink: string;
+  comingSoon?: boolean;
 };
 
 export function Affiliates() {
   const exchanges: Exchange[] = [
     {
-      name: 'Binance',
+      name: 'Coinex',
       logo: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=200&h=100',
-      description: 'The world\'s largest crypto exchange by trading volume, offering a comprehensive suite of trading services.',
+      description: 'CoinEx is a global cryptocurrency exchange that offers trading services for a wide range of digital assets.',
       pros: [
-        'High liquidity across all pairs',
-        'Extensive feature set',
+        'Wide range of cryptocurrencies',
         'Competitive fees',
-        'Advanced trading tools'
+        'No KYC requirement for basic trading',
+        'High liquidity'
       ],
       cons: [
-        'Complex for beginners',
-        'Limited customer support',
-        'Regulatory concerns in some regions'
+        'High withdrawal fees',
+        'Limited regulatory compliance',
+        'CET token dependency for discounts'
       ],
       rating: 4.8,
       currentPromo: {
         title: 'New User Bonus',
-        description: 'Get up to $100 in trading fee rebates',
-        expiry: '2024-04-30'
+        description: 'CoinEx offers new users a bonus of up to $100 worth of vouchers. To receive the bonus, users must complete tasks in the Newcomer Zone.',
+        expiry: '2025-02-15'
       },
       features: {
-        tradingFee: '0.1%',
-        leverage: 'Up to 125x',
-        minDeposit: '$10',
-        assets: '350+'
+        tradingFee: '0.2%',
+        leverage: 'Up to 100x',
+        minDeposit: 'No minimum deposit.',
+        assets: '1000+'
       },
-      affiliateLink: 'https://accounts.binance.com/register'
+      affiliateLink: 'https://www.coinex.com/'
     },
     {
       name: 'Bybit',
@@ -83,7 +84,8 @@ export function Affiliates() {
         minDeposit: '$20',
         assets: '250+'
       },
-      affiliateLink: 'https://www.bybit.com/register'
+      affiliateLink: 'https://www.bybit.com/register',
+      comingSoon: true
     },
     {
       name: 'KuCoin',
@@ -112,7 +114,8 @@ export function Affiliates() {
         minDeposit: '$5',
         assets: '600+'
       },
-      affiliateLink: 'https://www.kucoin.com/register'
+      affiliateLink: 'https://www.kucoin.com/register',
+      comingSoon: true
     }
   ];
 
@@ -120,11 +123,10 @@ export function Affiliates() {
     return [...Array(5)].map((_, index) => (
       <Star
         key={index}
-        className={`w-4 h-4 ${
-          index < rating
+        className={`w-4 h-4 ${index < rating
             ? 'text-yellow-400 fill-yellow-400'
             : 'text-gray-300'
-        }`}
+          }`}
       />
     ));
   };
@@ -145,7 +147,15 @@ export function Affiliates() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {exchanges.map((exchange) => (
-            <div key={exchange.name} className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div key={exchange.name} className="relative bg-white rounded-xl shadow-md overflow-hidden">
+              {exchange.comingSoon && (
+                <div className="absolute inset-0 backdrop-blur-[2px] bg-white/30 z-10 flex items-center justify-center">
+                  <div className="text-center">
+                    <Clock className="w-8 h-8 text-gray-800 mx-auto mb-2" />
+                    <p className="text-gray-800 font-medium">Coming soon!</p>
+                  </div>
+                </div>
+              )}
               <div className="relative h-32 bg-gradient-to-r from-blue-500 to-blue-600">
                 <Image
                   src={exchange.logo}

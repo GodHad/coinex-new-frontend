@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Copy, Check, Trash2, ChevronRight, Pencil } from 'lucide-react';
 import { Tooltip } from '@/components/Tooltip';
-import { deleteAdminHook, getAdminHooks, insertAdminHook, updateAdminHook} from '@/utils/api';
+import { deleteAdminHook, getAdminHooks, insertAdminHook, updateAdminHook } from '@/utils/api';
 import { toast } from 'react-toastify';
 import { AdminHook } from '@/types/admin-hook';
 
@@ -13,7 +13,8 @@ export default function AdminWebHook() {
 
     const [webhook, setWebhook] = useState<AdminHook>({
         name: '',
-        pair: ''
+        pair: '',
+        timeframe: ''
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -46,6 +47,7 @@ export default function AdminWebHook() {
             setWebhook({
                 pair: '',
                 name: '',
+                timeframe: ''
             });
         }
     };
@@ -74,6 +76,7 @@ export default function AdminWebHook() {
                 setWebhook({
                     pair: '',
                     name: '',
+                    timeframe: ''
                 });
             }
         }
@@ -117,15 +120,39 @@ export default function AdminWebHook() {
                                 <Tooltip content="Input Pair">
                                 </Tooltip>
                             </div>
-                            <input
-                                type="text"
-                                id="pair"
-                                name="pair"
+                            <select
                                 value={webhook.pair}
-                                onChange={handleInputChange}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
-                                placeholder="Enter pair"
-                            />
+                                onChange={(e) => setWebhook(prev => ({
+                                    ...prev,
+                                    pair: e.target.value
+                                }))}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
+                            >
+                                <option value={'BTC/USDT'}>BTC/USDT</option>
+                                <option value={'ETH/USDT'}>ETH/USDT</option>
+                                <option value={'SOL/USDT'}>SOL/USDT</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div className="flex items-center mb-2">
+                                <label htmlFor="timeframe" className="block text-sm font-medium text-gray-700">
+                                    Timeframe
+                                </label>
+                                <Tooltip content="Enter timeframe">
+                                </Tooltip>
+                            </div>
+                            <select
+                                value={webhook.timeframe}
+                                onChange={(e) => setWebhook(prev => ({
+                                    ...prev,
+                                    timeframe: e.target.value
+                                }))}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
+                            >
+                                <option value={'30m'}>30m</option>
+                                <option value={'1h'}>1h</option>
+                                <option value={'4h'}>4h</option>
+                            </select>
                         </div>
                         <button
                             onClick={generateWebhook}
@@ -184,19 +211,42 @@ export default function AdminWebHook() {
                                                                     type="text"
                                                                     value={editingWebhook.name}
                                                                     onChange={(e) => setEditingWebhook({ ...editingWebhook, name: e.target.value })}
-                                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2"
+                                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
                                                                 />
                                                             </div>
                                                             <div>
                                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                                                     Pair
                                                                 </label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={editingWebhook.pair}
-                                                                    onChange={(e) => setEditingWebhook({ ...editingWebhook, pair: e.target.value })}
-                                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2"
-                                                                />
+                                                                <select
+                                                                    value={webhook.pair}
+                                                                    onChange={(e) => setEditingWebhook(prev => prev ? ({
+                                                                        ...prev,
+                                                                        pair: e.target.value
+                                                                    }) : null)}
+                                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
+                                                                >
+                                                                    <option value={'BTC/USDT'}>BTC/USDT</option>
+                                                                    <option value={'ETH/USDT'}>ETH/USDT</option>
+                                                                    <option value={'SOL/USDT'}>SOL/USDT</option>
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                    Timeframe
+                                                                </label>
+                                                                <select
+                                                                    value={editingWebhook?.timeframe}
+                                                                    onChange={(e) => setEditingWebhook(prev => prev ? ({
+                                                                        ...prev,
+                                                                        timeframe: e.target.value
+                                                                    }) : null)}
+                                                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
+                                                                >
+                                                                    <option value={'30m'}>30m</option>
+                                                                    <option value={'1h'}>1h</option>
+                                                                    <option value={'4h'}>4h</option>
+                                                                </select>
                                                             </div>
                                                             <div className="flex justify-end gap-2 mt-3">
                                                                 <button

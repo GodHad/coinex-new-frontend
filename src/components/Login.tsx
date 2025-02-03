@@ -6,7 +6,6 @@ import { loginUser, loginWithJWT } from '@/utils/api';
 import { toast } from 'react-toastify';
 import UserContext from '@/contexts/UserContext';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -144,15 +143,6 @@ export function Login() {
               Sign In
             </button>
           </motion.form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href={'/auth/sign-up'} className="text-blue-600 hover:text-blue-700 font-medium">
-                Sign up
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>

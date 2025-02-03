@@ -1,13 +1,15 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Users, Activity, AlertTriangle, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, Check, X, ChevronDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from 'lucide-react';
+import { Users, Activity, AlertTriangle, Lock, Eye, EyeOff, User as UserIcon, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, Check, X, ChevronDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import { User } from '@/contexts/UserContext';
-import { deleteUser, getGeneralHooks, getOverview, getUsers, updateSubscribe } from '@/utils/api';
+import { deleteUser, getGeneralHooks, getOverview, getUsers, updateSubscribe, registerUser } from '@/utils/api';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { Webhook } from '@/types/hooks';
 import AdminWebHook from './AdminWebHook';
+import { motion } from 'framer-motion';
+
 
 type TradingPair = {
     id: string;
@@ -24,34 +26,64 @@ export function AdminPanel() {
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'webhooks' | 'settings' | 'adminWebhooks'>('overview');
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
-    const [overview, setOverview] = useState<Record<string, number>>({})
+    const [overview, setOverview] = useState<Record<string, number>>({});
+    const [isShow, setIsShow] = useState<boolean>(false);
+    const [form, setForm] = useState<User>({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: ''
+    })
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const onSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const result = await registerUser(form);
+        if (result) {
+            toast.success(result.message);
+            setForm({
+                firstName: '',
+                lastName: '',
+                email: '',
+                password: ''
+            });
+            setIsShow(false);
+            setUsers((prev) => [...prev, result.user])
+        }
+    }
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
+    }
 
     const stats = [
         {
             title: 'Total Users',
-            value: overview?.totalUsers || '1,234',
-            change: overview?.totalUsersChange ? convertPercent(overview?.totalUsersChange) : '+12%',
+            value: overview?.totalUsers,
+            change: overview?.totalUsersChange ? convertPercent(overview?.totalUsersChange) : null,
             icon: <Users className="w-5 h-5" />,
             color: 'bg-blue-500'
         },
         {
             title: 'Active Webhooks',
-            value: overview?.activeWebhooks || '567',
-            change: overview?.activeWebhooksChange ? convertPercent(overview?.activeWebhooksChange) : '+8%',
+            value: overview?.activeWebhooks,
+            change: overview?.activeWebhooksChange ? convertPercent(overview?.activeWebhooksChange) : null,
             icon: <WebhookIcon className="w-5 h-5" />,
             color: 'bg-green-500'
         },
         {
             title: 'Premium Users',
-            value: overview?.totalPremiumUsers || '89',
-            change: overview?.totalPremiumUsersChange ? convertPercent(overview?.totalPremiumUsersChange) : '+15%',
+            value: overview?.totalPremiumUsers,
+            change: overview?.totalPremiumUsersChange ? convertPercent(overview?.totalPremiumUsersChange) : null,
             icon: <Crown className="w-5 h-5" />,
             color: 'bg-yellow-500'
         },
         {
             title: 'Monthly Revenue',
-            value: '$12,345',
-            change: '+23%',
+            value: overview.currentMonthPnl ? '$' + overview.currentMonthPnl.toFixed(2).toLocaleString() : null,
+            change: overview.pnlRateChange ? convertPercent(overview.pnlRateChange) : null,
             icon: <DollarSign className="w-5 h-5" />,
             color: 'bg-purple-500'
         }
@@ -180,7 +212,7 @@ export function AdminPanel() {
                             <div className={`${stat.color} text-white p-3 rounded-lg`}>
                                 {stat.icon}
                             </div>
-                            <span className={`text-sm font-medium ${stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                            <span className={`text-sm font-medium ${stat.change && stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
                                 }`}>
                                 {stat.change}
                             </span>
@@ -254,6 +286,134 @@ export function AdminPanel() {
         </>
     );
 
+    const renderAddUser = () => {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+                    <div className="max-w-md w-full mx-auto">
+                        <div className="text-center">
+                            <h1 className="text-2xl font-bold">Enter User Information</h1>
+                        </div>
+                        <div className="bg-white p-8 rounded-lg">
+                            <motion.form
+                                onSubmit={onSubmit}
+                                className="space-y-6"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5 }}
+                            >
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        First Name
+                                    </label>
+                                    <div className="relative flex items-center">
+                                        <motion.input
+                                            type="text"
+                                            name='firstName'
+                                            value={form.firstName}
+                                            onChange={handleInputChange}
+                                            className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                                            placeholder="Enter your first name"
+                                            initial={{ borderColor: 'gray' }}
+                                            whileFocus={{ borderColor: 'blue' }}
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                        <UserIcon className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Last Name
+                                    </label>
+                                    <div className="relative flex items-center">
+                                        <motion.input
+                                            type="text"
+                                            name='lastName'
+                                            value={form.lastName}
+                                            onChange={handleInputChange}
+                                            className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                                            placeholder="Enter your last name"
+                                            initial={{ borderColor: 'gray' }}
+                                            whileFocus={{ borderColor: 'blue' }}
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                        <UserIcon className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Username
+                                    </label>
+                                    <div className="relative flex items-center">
+                                        <motion.input
+                                            type="text"
+                                            name='email'
+                                            value={form.email}
+                                            onChange={handleInputChange}
+                                            className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                                            placeholder="Enter your username"
+                                            initial={{ borderColor: 'gray' }}
+                                            whileFocus={{ borderColor: 'blue' }}
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                        <UserIcon className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Password
+                                    </label>
+                                    <div className="relative">
+                                        <motion.input
+                                            type={showPassword ? "text" : "password"}
+                                            name='password'
+                                            value={form.password}
+                                            onChange={handleInputChange}
+                                            className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
+                                            placeholder="Enter your password"
+                                            initial={{ borderColor: 'gray' }}
+                                            whileFocus={{ borderColor: 'blue' }}
+                                            transition={{ duration: 0.3 }}
+                                        />
+                                        <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                        >
+                                            {showPassword ? (
+                                                <EyeOff className="w-5 h-5" />
+                                            ) : (
+                                                <Eye className="w-5 h-5" />
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={() => setIsShow(false)}
+                                        className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 mr-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        Add User
+                                    </button>
+                                </div>
+                            </motion.form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     const renderUsers = () => (
         <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b border-gray-200">
@@ -264,6 +424,7 @@ export function AdminPanel() {
                         </Tooltip>
                     </div>
                     <button
+                        onClick={() => setIsShow(true)}
                         className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
                     >
                         <UserPlus className="w-4 h-4" />
@@ -376,7 +537,7 @@ export function AdminPanel() {
                                     ) : (
                                         <ArrowDownRight className="w-4 h-4 text-red-500" />
                                     )}
-                                    <span className="text-sm text-gray-600">{webhook.tradeDirection === 'LONG_ONLY' ? 'Long Only' : webhook.tradeDirection === 'SHORT_ONLY' ? 'Short Only' : webhook.tradeDirection }</span>
+                                    <span className="text-sm text-gray-600">{webhook.tradeDirection === 'LONG_ONLY' ? 'Long Only' : webhook.tradeDirection === 'SHORT_ONLY' ? 'Short Only' : webhook.tradeDirection}</span>
                                 </div>
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${!webhook.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}>
@@ -533,6 +694,7 @@ export function AdminPanel() {
                 {activeTab === 'settings' && renderSettings()}
                 {activeTab === 'adminWebhooks' && <AdminWebHook />}
             </div>
+            {isShow && renderAddUser()}
         </div>
     );
 }

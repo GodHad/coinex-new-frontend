@@ -1,6 +1,6 @@
 'use client';
 import React, { useContext, useEffect, useState } from 'react';
-import { ArrowUpRight, ArrowDownRight, Play, Pause, ExternalLink, AlertTriangle, TrendingUp, Crown, Clock, BarChart2, Lock, ArrowLeftRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Play, Pause, ExternalLink, AlertTriangle, TrendingUp, Crown, Clock, BarChart2, Lock, ArrowLeftRight, TrendingDown } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import UserContext from '@/contexts/UserContext';
 import { Webhook } from '@/types/hooks';
@@ -234,7 +234,10 @@ export function Dashboard() {
                 <div className="bg-white rounded-xl shadow-md p-6">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-gray-500">Total PnL</h3>
-                        <TrendingUp className={`w-5 h-5 ${totalStats.totalPnl >= 0 ? 'text-green-500' : 'text-red-500'}`} />
+                        {totalStats.totalPnl >= 0 ?
+                            <TrendingUp className={`w-5 h-5  text-green-500`} />
+                            : <TrendingDown className='w-5 h-5 text-red-500' />
+                        }
                     </div>
                     <p className={`text-2xl font-bold ${totalStats.totalPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {totalStats.totalPnl >= 0 ? '+' : ''}{totalStats.totalPnl.toFixed(2)} USDT

@@ -7,4 +7,7 @@ export type AdminHook = {
     url?: string;
     timeframe?: string;
     hook?: Webhook;
+    winRate?: string;
+    avgPnl?: string;
+    signals?: number;
 };

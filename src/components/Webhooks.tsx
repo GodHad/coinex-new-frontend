@@ -424,7 +424,7 @@ export function Webhooks() {
                                                                         type="text"
                                                                         value={editingWebhook.name}
                                                                         onChange={(e) => setEditingWebhook({ ...editingWebhook, name: e.target.value })}
-                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2"
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
                                                                     />
                                                                 </div>
                                                                 <div>
@@ -435,7 +435,7 @@ export function Webhooks() {
                                                                         type="text"
                                                                         value={editingWebhook.coinExApiKey}
                                                                         onChange={(e) => setEditingWebhook({ ...editingWebhook, coinExApiKey: e.target.value })}
-                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2"
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
                                                                     />
                                                                 </div>
                                                                 <div>
@@ -446,7 +446,7 @@ export function Webhooks() {
                                                                         type="password"
                                                                         value={editingWebhook.coinExApiSecret}
                                                                         onChange={(e) => setEditingWebhook({ ...editingWebhook, coinExApiSecret: e.target.value })}
-                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2"
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
                                                                     />
                                                                 </div>
                                                                 <div>
@@ -459,7 +459,7 @@ export function Webhooks() {
                                                                             ...editingWebhook,
                                                                             tradeDirection: e.target.value
                                                                         })}
-                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2"
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
                                                                     >
                                                                         {directions.map(option => (
                                                                             <option key={option.value} value={option.value}>{option.content}</option>
