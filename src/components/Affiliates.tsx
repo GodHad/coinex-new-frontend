@@ -149,10 +149,10 @@ export function Affiliates() {
           {exchanges.map((exchange) => (
             <div key={exchange.name} className="relative bg-white rounded-xl shadow-md overflow-hidden">
               {exchange.comingSoon && (
-                <div className="absolute inset-0 backdrop-blur-[2px] bg-white/30 z-10 flex items-center justify-center">
+                <div className="absolute inset-0 backdrop-blur-[7px] bg-black/70 z-10 flex items-center justify-center">
                   <div className="text-center">
-                    <Clock className="w-8 h-8 text-gray-800 mx-auto mb-2" />
-                    <p className="text-gray-800 font-medium">Coming soon!</p>
+                    <Clock className="w-8 h-8 text-white mx-auto mb-2" />
+                    <p className="text-white font-medium">Coming soon!</p>
                   </div>
                 </div>
               )}
