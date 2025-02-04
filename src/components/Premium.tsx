@@ -1,6 +1,6 @@
 'use client';
 import React, { useContext, useEffect, useState } from 'react';
-import { Crown, ChevronDown, AlertTriangle, Clock, TrendingUp, LineChart, Eye, EyeOff, Check, Key, Settings } from 'lucide-react';
+import { Crown, ChevronDown, AlertTriangle, Eye, EyeOff, Check, Key, Settings } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import Image from 'next/image';
 import UserContext from '@/contexts/UserContext';
@@ -92,22 +92,6 @@ export function Premium() {
     if (result) {
       setSignals(prev => prev.map(s => s._id === _signal?._id ? { ...s, hook: result.hook } : s));
       toast.success(result.message);
-    }
-  };
-
-  const getTimeframeIcon = (timeframe: string) => {
-    switch (timeframe) {
-      case '5m':
-      case '15m':
-      case '30m':
-        return <Clock className="w-4 h-4" />;
-      case '45m':
-      case '1h':
-      case '2h':
-      case '3h':
-        return <TrendingUp className="w-4 h-4" />;
-      default:
-        return <LineChart className="w-4 h-4" />;
     }
   };
 
@@ -315,10 +299,8 @@ export function Premium() {
               />
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    {getTimeframeIcon(signal?.timeframe || '30m')}
-                    <h3 className="text-xl font-bold">{signal.timeframe} Chart</h3>
-                  </div>
+                  <h3 className="text-lg font-semibold">BTC/USDT</h3>
+                  <span className="text-sm text-gray-500">1h</span>
                   {signal?.hook && (
                     <button
                       onClick={() => toggleSignal(signal._id, signal.hook)}
