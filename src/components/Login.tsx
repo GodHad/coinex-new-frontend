@@ -228,7 +228,7 @@ export function Login() {
       <div className="relative container mx-auto px-4 py-16 flex flex-col lg:flex-row items-center justify-between min-h-screen">
         {/* Left side - Platform Info */}
         <div className="lg:w-1/2 mb-12 lg:mb-0">
-          <h1 className="text-4xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
+          <h1 className="text-4xl lg:text-6xl font-bold mb-6 pb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
             Quantum Edge Trading
           </h1>
 

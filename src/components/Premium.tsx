@@ -9,19 +9,41 @@ import { getAdminHooks, insertHook, updateHook } from '@/utils/api';
 import { Webhook } from '@/types/hooks';
 import { toast } from 'react-toastify';
 
-type TimeFrame = '30m' | '1h' | '4h';
-type CryptoPair = 'BTC/USDT' | 'ETH/USDT' | 'SOL/USDT';
+const timeFrames = [
+  '5m', 
+  '15m', 
+  '30m', 
+  '45m', 
+  '1h', 
+  '2h', 
+  '3h', 
+  '4h', 
+  '1d'
+];
 
-const getTimeframeDescription = (timeframe: TimeFrame, pair: string): string => {
+const cryptoPairs = [
+  'SOL/USDT',
+  'BTC/USDT', 
+  'ETH/USDT', 
+];
+
+const getTimeframeDescription = (timeframe: string, pair: string): string => {
   const base = pair.split('/')[0];
-  console.log("time ", timeframe)
   switch (timeframe) {
+    case '5m':
+    case '15m':
     case '30m':
       return `Short-term ${base} scalping signals optimized for quick trades. Higher volatility but more frequent opportunities.`;
+    case '45m':
     case '1h':
+    case '2h':
+    case '3h':
       return `Medium-term ${base} trading signals with balanced risk-reward. Ideal for day trading with clearer trend confirmation.`;
     case '4h':
+    case '1d':
       return `Long-term ${base} position trading focusing on macro trends. Lower frequency but higher probability setups.`;
+    default:
+      return '';
   }
 };
 
@@ -75,9 +97,14 @@ export function Premium() {
 
   const getTimeframeIcon = (timeframe: string) => {
     switch (timeframe) {
+      case '5m':
+      case '15m':
       case '30m':
         return <Clock className="w-4 h-4" />;
+      case '45m':
       case '1h':
+      case '2h':
+      case '3h':
         return <TrendingUp className="w-4 h-4" />;
       default:
         return <LineChart className="w-4 h-4" />;
@@ -261,17 +288,16 @@ export function Premium() {
     )
   };
 
-  const renderSignalsByPair = (pair: CryptoPair) => {
-    const pairSignals = signals.filter(signal => signal.pair === pair);
-
+  const renderSignalsByPair = () => {
+    const sortedSignals = signals.sort((a, b) => {
+      if (a.pair !== b.pair) return cryptoPairs.indexOf(a.pair) - cryptoPairs.indexOf(b.pair);
+      return timeFrames.indexOf(a.timeframe || '') - timeFrames.indexOf(b.timeframe || '');
+    })
     return (
       <div className="mb-12 last:mb-0">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">{pair} Signals</h2>
-        </div>
         <div className="grid gap-8 md:grid-cols-3">
-          {pairSignals.map((signal) => (
-            <div key={`${signal.pair}-${signal.timeframe || '30m'}`} className="relative bg-white rounded-xl shadow-md overflow-hidden group">
+          {sortedSignals.map((signal) => (
+            <div key={`${signal._id}-${signal.timeframe || '30m'}`} className="relative bg-white rounded-xl shadow-md overflow-hidden group">
               {/* {!isPremium && (
                 <div className="absolute inset-0 backdrop-blur-[6px] bg-white/30 z-10 flex items-center justify-center">
                   <div className="text-center">
@@ -307,7 +333,7 @@ export function Premium() {
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-600 text-sm">{getTimeframeDescription(signal.timeframe as TimeFrame || '30m', signal.pair)}</p>
+                  <p className="text-gray-600 text-sm">{getTimeframeDescription(signal.timeframe || '', signal.pair)}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 text-center mb-4">
@@ -401,9 +427,7 @@ export function Premium() {
             <p className="text-xl text-gray-600">Access professional-grade trading signals and boost your trading performance</p>
           </div>
 
-          {renderSignalsByPair('BTC/USDT')}
-          {renderSignalsByPair('ETH/USDT')}
-          {renderSignalsByPair('SOL/USDT')}
+          {renderSignalsByPair()}
 
           <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl p-8 text-white text-center mt-12">
             <h2 className="text-3xl font-bold mb-4 flex items-center justify-center gap-2">
@@ -444,9 +468,7 @@ export function Premium() {
           <Tooltip content="Configure and activate professional-grade trading signals with advanced market analysis." />
         </div>
 
-        {renderSignalsByPair('BTC/USDT')}
-        {renderSignalsByPair('ETH/USDT')}
-        {renderSignalsByPair('SOL/USDT')}
+        {renderSignalsByPair()}
 
         {_signal && renderApiConfig(_signal)}
       </div>
