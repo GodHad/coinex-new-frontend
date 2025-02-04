@@ -154,8 +154,8 @@ export default function AdminWebHook() {
                                 <option value={'30m'}>30m</option>
                                 <option value={'45m'}>45m</option>
                                 <option value={'1h'}>1h</option>
-                                <option value={'2h'}>1h</option>
-                                <option value={'3h'}>1h</option>
+                                <option value={'2h'}>2h</option>
+                                <option value={'3h'}>3h</option>
                                 <option value={'4h'}>4h</option>
                                 <option value={'1d'}>1d</option>
                             </select>
@@ -254,8 +254,8 @@ export default function AdminWebHook() {
                                                                     <option value={'30m'}>30m</option>
                                                                     <option value={'45m'}>45m</option>
                                                                     <option value={'1h'}>1h</option>
-                                                                    <option value={'2h'}>1h</option>
-                                                                    <option value={'3h'}>1h</option>
+                                                                    <option value={'2h'}>2h</option>
+                                                                    <option value={'3h'}>3h</option>
                                                                     <option value={'4h'}>4h</option>
                                                                     <option value={'1d'}>1d</option>
                                                                 </select>
