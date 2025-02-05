@@ -290,13 +290,26 @@ export function Premium() {
                   </div>
                 </div>
               )} */}
-              <Image
-                src={getCryptoImage(signal.pair)}
-                alt={signal.pair}
-                className="w-full h-48 object-cover"
-                width={400}
-                height={300}
-              />
+              <div className="relative">
+                <Image
+                  src={getCryptoImage(signal.pair)}
+                  alt={signal.pair}
+                  className="w-full h-48 object-cover"
+                  width={400}
+                  height={300}
+                />
+                <div className="absolute top-4 right-4">
+                  <div className={`
+                    px-3 py-1 rounded-full text-sm font-medium
+                    ${signal.riskLevel === 'High' ? 'bg-red-100 text-red-800' :
+                      signal.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                    }
+                  `}>
+                    {signal.riskLevel} Risk
+                  </div>
+                </div>
+              </div>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">{signal.pair}</h3>
@@ -318,18 +331,22 @@ export function Premium() {
                   <p className="text-gray-600 text-sm">{getTimeframeDescription(signal.timeframe || '', signal.pair)}</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                  <div>
+                <div className="grid grid-cols-4 gap-4 text-center mb-4">
+                  <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Win Rate</p>
                     <p className="font-bold text-green-600">{signal.winRate || 0}%</p>
                   </div>
-                  <div>
+                  <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Avg. Profit</p>
                     <p className="font-bold text-green-600">${signal.avgPnl || 0}</p>
                   </div>
-                  <div>
+                  <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Signals</p>
                     <p className="font-bold text-blue-600">{signal.signals}</p>
+                  </div>
+                  <div className="flex flex-col justify-between">
+                    <p className="text-sm text-gray-500">24h Histories</p>
+                    <p className="font-bold text-blue-600">{signal.total24 || 0}</p>
                   </div>
                 </div>
 

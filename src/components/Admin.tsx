@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Users, Activity, AlertTriangle, Lock, Eye, EyeOff, User as UserIcon, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, Check, X, ChevronDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import { User } from '@/contexts/UserContext';
-import { deleteUser, getGeneralHooks, getOverview, getUsers, updateSubscribe, registerUser } from '@/utils/api';
+import { deleteUser, getGeneralHooks, getOverview, getUsers, updateSubscribe, addUser } from '@/utils/api';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { Webhook } from '@/types/hooks';
@@ -39,7 +39,7 @@ export function AdminPanel() {
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const result = await registerUser(form);
+        const result = await addUser(form);
         if (result) {
             toast.success(result.message);
             setForm({
@@ -464,9 +464,9 @@ export function AdminPanel() {
                                         }`}>
                                         {user.subscribed ? 'Premium' : 'Standard'}
                                     </span>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${(user.subscribed === 1 && isExpired) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${(user.status) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                         }`}>
-                                        {user.subscribed === 1 && isExpired ? 'Active' : 'Inactive'}
+                                        {user.status ? 'Active' : 'Inactive'}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -484,7 +484,11 @@ export function AdminPanel() {
                             </div>
                             {expandedUserId === user._id && (
                                 <div className="mt-4 pl-14 space-y-2">
-                                    <p className="text-sm text-gray-600">Joined: {moment(user.createdAt).format('YYYY-MM-DD hh:mm:ss')}</p>
+                                    {user.status ? 
+                                        <p className="text-sm text-gray-600">Joined: {moment(user.createdAt).format('YYYY-MM-DD hh:mm:ss')}</p>
+                                        :
+                                        <p className="text-sm text-gray-600">Invite Code: {user.inviteCode}</p>
+                                    }
                                     <p className="text-sm text-gray-600">Last Active: {moment(user.updatedAt).format('YYYY-MM-DD hh:mm:ss')}</p>
                                     <div className="flex gap-2 mt-2">
                                         <button

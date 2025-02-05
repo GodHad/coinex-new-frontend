@@ -13,13 +13,23 @@ const getToken = () => {
     return null;
 }
 
-export const registerUser = async (data: any) => {
+export const addUser = async (data: any) => {
     try {
-        const response = await axios.post(`${backendUrl}api/auth/register`, data, {
+        const response = await axios.post(`${backendUrl}api/admin/add-user`, data, {
             headers: {
                 Authorization: `Bearer ${getToken()}`
             }
         });
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error)
+        return false;
+    }
+}
+
+export const registerUser = async (data: any) => {
+    try {
+        const response = await axios.post(`${backendUrl}api/auth/register`, data);
         return response.data;
     } catch (error: any) {
         toast.error(error.response.data.message || error.message || error)

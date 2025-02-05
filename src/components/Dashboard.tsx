@@ -14,8 +14,8 @@ export function Dashboard() {
 
     const [positions, setPositions] = useState<Webhook[]>([]);
 
-    const standardPositions = positions.filter(pos => !pos.isSubscribed);
-    const premiumPositions = positions.filter(pos => pos.isSubscribed);
+    const standardPositions = positions.filter(pos => !pos.isSubscribed && !pos.status);
+    const premiumPositions = positions.filter(pos => pos.isSubscribed && !pos.status);
 
     const getSourceStats = (source: boolean) => {
         const filteredPositions = positions.filter(pos => pos.isSubscribed === source);

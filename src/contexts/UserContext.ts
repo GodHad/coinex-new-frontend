@@ -10,6 +10,8 @@ export type User = {
     isAdmin?: boolean;
     subscribed?: number;
     subscribeEndDate?: Date;
+    status?: number;
+    inviteCode?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }

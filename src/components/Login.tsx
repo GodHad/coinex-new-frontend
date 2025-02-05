@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, Globe } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, Globe, ChevronRight } from 'lucide-react';
 import UserContext from '@/contexts/UserContext';
 import { redirect } from 'next/navigation';
 import { loginUser, loginWithJWT } from '@/utils/api';
@@ -20,7 +20,7 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSigningUp] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
   const [priceData, setPriceData] = useState<PriceBar[]>([]);
 
   useEffect(() => {
@@ -281,13 +281,13 @@ export function Login() {
               <h2 className="text-xl font-semibold">
                 {isSigningUp ? 'Request Access' : 'Welcome Back'}
               </h2>
-              {/* <button
+              <button
                 onClick={() => setIsSigningUp(!isSigningUp)}
                 className="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
               >
                 {isSigningUp ? 'Sign in instead' : 'Request access'}
                 <ChevronRight className="w-4 h-4" />
-              </button> */}
+              </button>
             </div>
 
             {/* {error && (

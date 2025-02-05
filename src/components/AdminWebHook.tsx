@@ -14,7 +14,8 @@ export default function AdminWebHook() {
     const [webhook, setWebhook] = useState<AdminHook>({
         name: '',
         pair: '',
-        timeframe: ''
+        timeframe: '',
+        riskLevel: '',
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -47,7 +48,8 @@ export default function AdminWebHook() {
             setWebhook({
                 pair: '',
                 name: '',
-                timeframe: ''
+                timeframe: '',
+                riskLevel: ''
             });
         }
     };
@@ -76,7 +78,8 @@ export default function AdminWebHook() {
                 setWebhook({
                     pair: '',
                     name: '',
-                    timeframe: ''
+                    timeframe: '',
+                    riskLevel: '',
                 });
             }
         }
@@ -160,9 +163,30 @@ export default function AdminWebHook() {
                                 <option value={'1d'}>1d</option>
                             </select>
                         </div>
+                        <div>
+                            <div className="flex items-center mb-2">
+                                <label htmlFor="riskLevel" className="block text-sm font-medium text-gray-700">
+                                    Risk Level
+                                </label>
+                                <Tooltip content="Select Risk Level">
+                                </Tooltip>
+                            </div>
+                            <select
+                                value={webhook.riskLevel}
+                                onChange={(e) => setWebhook(prev => ({
+                                    ...prev,
+                                    riskLevel: e.target.value
+                                }))}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
+                            >
+                                <option value={'Low'}>Low</option>
+                                <option value={'Medium'}>Medium</option>
+                                <option value={'High'}>High</option>
+                            </select>
+                        </div>
                         <button
                             onClick={generateWebhook}
-                            disabled={!webhook.name || !webhook.pair}
+                            disabled={!webhook.name || !webhook.pair || !webhook.riskLevel}
                             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
                         >
                             Generate Webhook
@@ -260,6 +284,27 @@ export default function AdminWebHook() {
                                                                     <option value={'1d'}>1d</option>
                                                                 </select>
                                                             </div>
+                                                            <div>
+                                                            <div className="flex items-center mb-2">
+                                                                <label htmlFor="riskLevel" className="block text-sm font-medium text-gray-700">
+                                                                    Risk Level
+                                                                </label>
+                                                                <Tooltip content="Select Risk Level">
+                                                                </Tooltip>
+                                                            </div>
+                                                            <select
+                                                                value={editingWebhook.riskLevel}
+                                                                onChange={(e) => setEditingWebhook(prev => prev ? ({
+                                                                    ...prev,
+                                                                    riskLevel: e.target.value
+                                                                }) : null)}
+                                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-2 pr-6"
+                                                            >
+                                                                <option value={'Low'}>Low</option>
+                                                                <option value={'Medium'}>Medium</option>
+                                                                <option value={'High'}>High</option>
+                                                            </select>
+                                                        </div>
                                                             <div className="flex justify-end gap-2 mt-3">
                                                                 <button
                                                                     onClick={() => setEditingWebhook(null)}
