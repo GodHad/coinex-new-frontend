@@ -448,6 +448,7 @@ export function AdminPanel() {
                     user.lastName.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
                     user.email.toLowerCase().includes(userSearchQuery.toLowerCase())
                 ).map((user) => {
+                    const isPremium = !!(user?.subscribed === 1 && user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now());
                     const isExpired = user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now();
                     return (
                         <div key={user._id} className="p-4">
@@ -460,9 +461,9 @@ export function AdminPanel() {
                                         <p className="font-medium">{`${user.firstName} ${user.lastName}`}</p>
                                         <p className="text-sm text-gray-500">{user.email}</p>
                                     </div>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.subscribed ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${isPremium ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'
                                         }`}>
-                                        {user.subscribed ? 'Premium' : 'Standard'}
+                                        {isPremium ? 'Premium' : 'Standard'}
                                     </span>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${(user.status) ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                         }`}>
