@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, Globe, ChevronRight } from 'lucide-react';
 import UserContext from '@/contexts/UserContext';
 import { redirect } from 'next/navigation';
-import { loginUser, loginWithJWT } from '@/utils/api';
+import { loginUser, loginWithJWT, registerUser } from '@/utils/api';
 import { toast } from 'react-toastify';
 
 interface PriceBar {
@@ -26,7 +26,7 @@ export function Login() {
   useEffect(() => {
     let basePrice = 50000;
     const initialData: PriceBar[] = [];
-    
+
     // Generate initial data
     for (let i = 0; i < 30; i++) {
       const volatility = basePrice * 0.02; // 2% volatility
@@ -34,7 +34,7 @@ export function Login() {
       const close = open + (Math.random() - 0.5) * volatility;
       const high = Math.max(open, close) + Math.random() * volatility * 0.5;
       const low = Math.min(open, close) - Math.random() * volatility * 0.5;
-      
+
       // Add signals at interesting points
       const signal = Math.random() < 0.2 ? // 20% chance of signal
         (close > open ? 'buy' : 'sell') as 'buy' | 'sell' :
@@ -62,7 +62,7 @@ export function Login() {
         const close = open + (Math.random() - 0.5) * volatility;
         const high = Math.max(open, close) + Math.random() * volatility * 0.5;
         const low = Math.min(open, close) - Math.random() * volatility * 0.5;
-        
+
         const signal = Math.random() < 0.2 ?
           (close > open ? 'buy' : 'sell') as 'buy' | 'sell' :
           undefined;
@@ -83,10 +83,9 @@ export function Login() {
 
   const { user, setUser, setJwtToken } = useContext(UserContext);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await loginUser({ email, password });
+    const result = isSigningUp ? await registerUser({ email, password, inviteCode }) : await loginUser({ email, password });
     if (result) {
       toast.success(result.message);
       setUser(result.user);
@@ -150,10 +149,10 @@ export function Login() {
               <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
             </linearGradient>
             <filter id="glow">
-              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
               <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
           </defs>
@@ -349,7 +348,7 @@ export function Login() {
                     type="text"
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value)}
-                    className="w-full rounded-lg border-gray-700 bg-gray-800/50 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500"
+                    className="p-2 w-full rounded-lg border-gray-700 bg-gray-800/50 text-white placeholder-gray-500 border focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
                     placeholder="Enter your invite code"
                   />
                 </div>
