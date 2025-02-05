@@ -267,7 +267,7 @@ export const resentHistory = async (id: string) => {
     try {
         const response = await axios.get(`${backendUrl}api/webhooks/resend/${id}`, {
             headers: {
-                Authorization: `Bear ${getToken()}`
+                Authorization: `Bearer ${getToken()}`
             }
         });
 
