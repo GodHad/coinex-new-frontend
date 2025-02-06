@@ -345,7 +345,7 @@ export function Premium() {
                     <p className="font-bold text-blue-600">{signal.signals}</p>
                   </div>
                   <div className="flex flex-col justify-between">
-                    <p className="text-sm text-gray-500">24h Histories</p>
+                    <p className="text-sm text-gray-500">24h History</p>
                     <p className="font-bold text-blue-600">{signal.total24 || 0}</p>
                   </div>
                 </div>
