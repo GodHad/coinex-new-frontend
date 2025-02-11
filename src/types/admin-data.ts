@@ -16,4 +16,5 @@ export type AdminData = {
     featuredCardDescription2: string;
     maintainanceMode: boolean,
     allowSignup: boolean;
+    // inviteCodes?: string[];
 };

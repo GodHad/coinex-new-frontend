@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Check, X, RefreshCw, Globe, Twitter, Instagram, MessageCircle, MessagesSquare, Copy, ExternalLink, Image as ImageIcon, Save, ChevronDown, Settings as SettingsIcon, Key } from 'lucide-react';
+import { Check, X, RefreshCw, Globe, Twitter, Instagram, MessageCircle, MessagesSquare, ExternalLink, Image as ImageIcon, Save, ChevronDown, Settings as SettingsIcon, Key } from 'lucide-react';
 import { Tooltip } from '../../components/Tooltip';
 import { ExchangePartners } from './ExchangePartners';
 import { updateAdminData, getAdminData } from '@/utils/api';
@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 
 export function Settings() {
     const [activeTab, setActiveTab] = useState<'general' | 'exchanges'>('general');
-    const [inviteCodes, setInviteCodes] = useState<string[]>([]);
+    // const [inviteCodes, setInviteCodes] = useState<string[]>([]);
     const { adminData, setAdminData } = useContext(AdminDataContext);
     const [adminPanelData, setAdminPanelData] = useState({
         twitter: "",
@@ -36,7 +36,6 @@ export function Settings() {
         ],
         maintainanceMode:true,
         allowSignup:true,
-        inviteCodes: [],
     });
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
@@ -79,7 +78,7 @@ export function Settings() {
                 ],
                 maintainanceMode:adminData.maintainanceMode,
                 allowSignup: adminData.allowSignup,
-                inviteCodes: adminData.inviteCodes
+                // inviteCodes: adminData?.inviteCodes
             });
         }
     }, [adminData]);
@@ -105,27 +104,27 @@ export function Settings() {
     );
 
     const generateInviteCode = () => {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let code = '';
-        for (let i = 0; i < 10; i++) {
-            code += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
+        // const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        // let code = '';
+        // for (let i = 0; i < 10; i++) {
+        //     code += chars.charAt(Math.floor(Math.random() * chars.length));
+        // }
         setAdminPanelData({
             ...adminPanelData,
-            inviteCodes: [...adminPanelData.inviteCodes, code] 
+            // inviteCodes: [...adminPanelData.inviteCodes, code] 
         });
     };
 
-    const copyInviteCode = async (code: string) => {
-        await navigator.clipboard.writeText(code);
-    };
+    // const copyInviteCode = async (code: string) => {
+    //     await navigator.clipboard.writeText(code);
+    // };
 
-    const removeInviteCode = (code: string) => {
-        setAdminPanelData({
-            ...adminPanelData,
-            inviteCodes: adminPanelData.inviteCodes.filter(c => c !== code) 
-        });
-    };
+    // const removeInviteCode = (code: string) => {
+    //     setAdminPanelData({
+    //         ...adminPanelData,
+    //         // inviteCodes: adminPanelData.inviteCodes.filter(c => c !== code) 
+    //     });
+    // };
 
     const handleSocialLinkChange = (platform: keyof typeof adminPanelData, value: string) => {
         setAdminPanelData(prev => ({ ...prev, [platform]: value }));
@@ -370,7 +369,7 @@ export function Settings() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    {adminPanelData.inviteCodes.map(code => (
+                                    {/* {adminPanelData.inviteCodes.map(code => (
                                         <div key={code} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                             <code className="font-mono text-sm">{code}</code>
                                             <div className="flex items-center gap-2">
@@ -381,19 +380,19 @@ export function Settings() {
                                                     <Copy className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => removeInviteCode(code)}
+                                                    // onClick={() => removeInviteCode(code)}
                                                     className="p-2 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
                                                 >
                                                     <X className="w-4 h-4" />
                                                 </button>
                                             </div>
                                         </div>
-                                    ))}
-                                    {adminPanelData.inviteCodes.length === 0 && (
+                                    ))} */}
+                                    {/* {adminPanelData.inviteCodes.length === 0 && (
                                         <p className="text-center text-gray-500 py-4">
                                             No invite codes generated yet
                                         </p>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                         )}
