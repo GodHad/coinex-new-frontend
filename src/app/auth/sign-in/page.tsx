@@ -1,17 +1,18 @@
 import { Login } from "@/components/Login";
+import { getHomepageData } from "@/utils/api";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Webhooks | Sign In",
-    description: "Sign in to your account",
+  title: "Webhooks | Sign In",
+  description: "Sign in to your account",
 };
 
-const SignInPage: React.FC = () => {
+export default async function SignInPage() {
+  const result = await getHomepageData();
+
   return (
     <div>
-      <Login />
+      <Login homepageData={result ? result.data : null} />
     </div>
   );
 };
-
-export default SignInPage;

@@ -3,13 +3,22 @@
 import { Sidebar } from "@/components/Sidebar";
 import { usePathname } from "next/navigation";
 import { ReactNode, useContext } from "react";
-import { ToastContainer } from "react-toastify";
 import Providers from "./providers";
 import AuthRoute from "@/components/AuthRoute";
 import UserContext from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 
-const App = ({ children }: { children: ReactNode }) => {
+interface Props {
+    children: ReactNode;
+    socialLinks: {
+        twitter?: string;
+        telegram?: string;
+        discord?: string;
+        instagram?: string;
+    }
+}
+
+export default function App({ children, socialLinks }: Props) {
     const pathname = usePathname();
 
     const { setUser } = useContext(UserContext);
@@ -23,21 +32,13 @@ const App = ({ children }: { children: ReactNode }) => {
 
     return (
         <Providers>
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                closeOnClick={true}
-                pauseOnHover={true}
-                draggable={true}
-                theme='colored'
-            />
             {pathname.includes("/auth") ? (
                 children
             ) : (
                 <AuthRoute>
                     <div className="flex">
                         <Sidebar
+                            socialLinks={socialLinks}
                             currentPath={pathname}
                             onLogout={handleLogout}
                         />
@@ -49,6 +50,4 @@ const App = ({ children }: { children: ReactNode }) => {
             )}
         </Providers>
     );
-};
-
-export default App;
+}

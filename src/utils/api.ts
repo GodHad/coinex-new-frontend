@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { AdminHook } from '@/types/admin-hook';
+import { AdminData } from '@/types/admin-data';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -206,7 +207,7 @@ export const getGeneralHooks = async () => {
     return response.data;
 }
 
-export const insertAdminHook = async (hook: AdminHook) => {
+export const insertAdminHook = async (hook: Partial<AdminHook>) => {
     try {
         const response = await axios.post(`${backendUrl}api/admin/hooks/create`, hook, {
             headers: {
@@ -220,7 +221,7 @@ export const insertAdminHook = async (hook: AdminHook) => {
     }
 }
 
-export const updateAdminHook = async (hook: AdminHook) => {
+export const updateAdminHook = async (hook: Partial<AdminHook>) => {
     try {
         const response = await axios.put(`${backendUrl}api/admin/hooks/update/${hook._id}`, hook, {
             headers: {
@@ -248,17 +249,19 @@ export const deleteAdminHook = async (id: string) => {
     }
 }
 
-export const getOverview = async () => {
+export const getOverview = async (jwtToken: string) => {
     try {
+        console.log(jwtToken)
         const response = await axios.get(`${backendUrl}api/admin/overview`, {
             headers: {
-                Authorization: `Bearer ${getToken()}`
+                Authorization: `Bearer ${jwtToken}`
             }
         });
 
         return response.data;
     } catch (error: any) {
-        toast.error(error.response.data.message || error.message || error);
+        console.log(error);
+        // toast.error(error.response.data.message || error.message || error);
         return false;
     }
 }
@@ -289,6 +292,62 @@ export const getDashboardOverview = async (jwtToken: string) => {
         return response.data;
     } catch (error: any) {
         toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
+
+export const getAdminData = async () => {
+    try {
+        const response = await axios.get(`${backendUrl}api/admin/admin-data`, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        });
+
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
+
+export const updateAdminData = async (adminData: Partial<AdminData>) => {
+    try {
+        const response = await axios.post(`${backendUrl}api/admin/update-admin-data`, adminData, {
+            headers: {
+                Authorization: `Bearer ${getToken()}`
+            }
+        });
+
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
+
+export const getHomepageData = async () => {
+    try {
+        const response = await axios.get(`${backendUrl}api/users/homepage`);
+
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
+
+export const getSocialLinks = async (jwtToken: string) => {
+    try {
+        const response = await axios.get(`${backendUrl}api/users/social-links`, {
+            headers: {
+                Authorization: `Bearer ${jwtToken}`
+            }
+        });
+
+        return response.data;
+    } catch(error: any) {
+        console.error(error)
         return false;
     }
 }

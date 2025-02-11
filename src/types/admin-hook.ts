@@ -4,12 +4,16 @@ export type AdminHook = {
     _id?: string;
     name: string;
     pair: string;
+    description?: string;
+    imageUrl: string;
     riskLevel: string;
     url?: string;
     timeframe?: string;
+    recommendedLeverage?: string;
     hook?: Webhook;
-    winRate?: string;
-    avgPnl?: string;
+    winRate?: number;
+    avgPnl?: number;
     signals?: number;
     total24?: number;
+    enabled?: boolean;
 };

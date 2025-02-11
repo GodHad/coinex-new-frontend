@@ -1,32 +1,24 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Users, Activity, AlertTriangle, Lock, Eye, EyeOff, User as UserIcon, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, Check, X, ChevronDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from 'lucide-react';
+import { Users, Activity, AlertTriangle, Lock, Eye, EyeOff, User as UserIcon, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, ChevronDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import { User } from '@/contexts/UserContext';
-import { deleteUser, getGeneralHooks, getOverview, getUsers, updateSubscribe, addUser } from '@/utils/api';
+import { deleteUser, getGeneralHooks, getUsers, updateSubscribe, addUser } from '@/utils/api';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { Webhook } from '@/types/hooks';
 import AdminWebHook from './AdminWebHook';
 import { motion } from 'framer-motion';
-
-
-type TradingPair = {
-    id: string;
-    name: string;
-    enabled: boolean;
-    description: string;
-};
+import { Settings } from './admin/Setting';
 
 const convertPercent = (percent: number) => {
     return `${percent > 0 ? '+' : ''}${percent.toFixed(2)}%`
 }
 
-export function AdminPanel() {
+export function AdminPanel({ overview }: { overview: Record<string, number> }) {
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'webhooks' | 'settings' | 'adminWebhooks'>('overview');
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
-    const [overview, setOverview] = useState<Record<string, number>>({});
     const [isShow, setIsShow] = useState<boolean>(false);
     const [form, setForm] = useState<User>({
         firstName: '',
@@ -110,27 +102,6 @@ export function AdminPanel() {
         }
     ];
 
-    const tradingPairs: TradingPair[] = [
-        {
-            id: '1',
-            name: 'BTC/USDT',
-            enabled: true,
-            description: 'Bitcoin/USDT trading pair'
-        },
-        {
-            id: '2',
-            name: 'ETH/USDT',
-            enabled: true,
-            description: 'Ethereum/USDT trading pair'
-        },
-        {
-            id: '3',
-            name: 'SOL/USDT',
-            enabled: false,
-            description: 'Solana/USDT trading pair'
-        }
-    ];
-
     const getAlertIcon = (type: string) => {
         switch (type) {
             case 'error':
@@ -190,17 +161,9 @@ export function AdminPanel() {
         }
     }
 
-    const handleGetOverview = async () => {
-        const res = await getOverview();
-        if (res) {
-            setOverview(res);
-        }
-    }
-
     useEffect(() => {
         handleGetUsers();
         handleGetAdminWebhooks();
-        handleGetOverview();
     }, [])
 
     const renderOverview = () => (
@@ -485,7 +448,7 @@ export function AdminPanel() {
                             </div>
                             {expandedUserId === user._id && (
                                 <div className="mt-4 pl-14 space-y-2">
-                                    {user.status ? 
+                                    {user.status ?
                                         <p className="text-sm text-gray-600">Joined: {moment(user.createdAt).format('YYYY-MM-DD hh:mm:ss')}</p>
                                         :
                                         <p className="text-sm text-gray-600">Invite Code: {user.inviteCode}</p>
@@ -564,77 +527,6 @@ export function AdminPanel() {
         </div>
     );
 
-    const renderSettings = () => (
-        <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow">
-                <div className="p-6 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-semibold">Trading Pairs</h2>
-                            <Tooltip content="Enable or disable trading pairs for premium users">
-                            </Tooltip>
-                        </div>
-                    </div>
-                </div>
-                <div className="divide-y divide-gray-100">
-                    {tradingPairs.map((pair) => (
-                        <div key={pair.id} className="p-4 flex items-center justify-between">
-                            <div>
-                                <p className="font-medium">{pair.name}</p>
-                                <p className="text-sm text-gray-500">{pair.description}</p>
-                            </div>
-                            <button
-                                className={`p-2 rounded-full ${pair.enabled
-                                    ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                    }`}
-                            >
-                                {pair.enabled ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-lg font-semibold">Premium Features</h2>
-                    <Tooltip content="Configure premium feature availability">
-                    </Tooltip>
-                </div>
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <p className="font-medium">Advanced Analytics</p>
-                            <p className="text-sm text-gray-500">Enable detailed trading analytics</p>
-                        </div>
-                        <button className="bg-green-100 text-green-600 p-2 rounded-full">
-                            <Check className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <p className="font-medium">Priority Support</p>
-                            <p className="text-sm text-gray-500">24/7 premium support access</p>
-                        </div>
-                        <button className="bg-green-100 text-green-600 p-2 rounded-full">
-                            <Check className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <p className="font-medium">Custom Webhooks</p>
-                            <p className="text-sm text-gray-500">Allow custom webhook creation</p>
-                        </div>
-                        <button className="bg-gray-100 text-gray-600 p-2 rounded-full">
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-
     return (
         <div className="p-6">
             <div className="max-w-6xl mx-auto">
@@ -673,6 +565,15 @@ export function AdminPanel() {
                             Webhooks
                         </button>
                         <button
+                            onClick={() => setActiveTab('adminWebhooks')}
+                            className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'adminWebhooks'
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                        >
+                            Premium Webhooks
+                        </button>
+                        <button
                             onClick={() => setActiveTab('settings')}
                             className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'settings'
                                 ? 'bg-blue-600 text-white'
@@ -681,22 +582,13 @@ export function AdminPanel() {
                         >
                             Settings
                         </button>
-                        <button
-                            onClick={() => setActiveTab('adminWebhooks')}
-                            className={`px-4 py-2 rounded-lg transition-colors ${activeTab === 'adminWebhooks'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                }`}
-                        >
-                            Admin Webhooks
-                        </button>
                     </div>
                 </div>
 
                 {activeTab === 'overview' && renderOverview()}
                 {activeTab === 'users' && renderUsers()}
                 {activeTab === 'webhooks' && renderWebhooks()}
-                {activeTab === 'settings' && renderSettings()}
+                {activeTab === 'settings' && <Settings />}
                 {activeTab === 'adminWebhooks' && <AdminWebHook />}
             </div>
             {isShow && renderAddUser()}

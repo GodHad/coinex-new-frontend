@@ -334,11 +334,11 @@ export function Premium() {
                 <div className="grid grid-cols-4 gap-4 text-center mb-4">
                   <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Win Rate</p>
-                    <p className="font-bold text-green-600">{signal.winRate || 0}%</p>
+                    <p className={`font-bold ${signal.winRate && signal.winRate >= 0 ? 'text-green-600' : 'text-red-600' }`}>{signal.winRate?.toFixed(2) || 0}%</p>
                   </div>
                   <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Avg. Profit</p>
-                    <p className="font-bold text-green-600">${signal.avgPnl || 0}</p>
+                    <p className={`font-bold ${signal.avgPnl && signal.avgPnl >= 0 ? 'text-green-600' : 'text-red-600' }`}>${signal.avgPnl?.toFixed(2) || 0}</p>
                   </div>
                   <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Signals</p>
@@ -356,11 +356,11 @@ export function Premium() {
                     <span className="text-sm font-medium">Recommended Leverage:</span>
                     <span className="text-sm text-gray-600">10x</span>
                   </div>
-                  {signal.timeframe === '30m' && (
+                  {/* {signal.timeframe === '30m' && (
                     <p className="text-xs text-gray-500">
                       High volatility - use strict position sizing and isolated margin
                     </p>
-                  )}
+                  )} */}
                 </div>
               </div>
               <div className="flex justify-center mb-2">

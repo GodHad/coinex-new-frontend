@@ -5,6 +5,7 @@ import UserContext from '@/contexts/UserContext';
 import { redirect } from 'next/navigation';
 import { loginUser, loginWithJWT, registerUser } from '@/utils/api';
 import { toast } from 'react-toastify';
+import { AdminData } from '@/types/admin-data';
 
 interface PriceBar {
   high: number;
@@ -15,7 +16,7 @@ interface PriceBar {
   signal?: 'buy' | 'sell';
 }
 
-export function Login() {
+export function Login({ homepageData }: { homepageData: Partial<AdminData> | null }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [inviteCode, setInviteCode] = useState('');
@@ -91,6 +92,7 @@ export function Login() {
       setUser(result.user);
       setJwtToken(result.token);
 
+      document.cookie = `jwtToken=${result.token}; path=/; Secure; HttpOnly`;
       setEmail('');
       setPassword('');
       window.localStorage.setItem('jwtToken', result.token);
@@ -106,6 +108,7 @@ export function Login() {
         toast.success(result.message);
         setUser(result.user);
         setJwtToken(result.token);
+        document.cookie = `jwtToken=${result.token}; path=/; Secure; HttpOnly`;
         setEmail('');
         setPassword('');
         window.localStorage.setItem('jwtToken', result.token);
@@ -123,20 +126,19 @@ export function Login() {
     }
   }, []);
 
-  // Chart dimensions
   const chartHeight = 300;
   const chartWidth = 1200;
   const barWidth = chartWidth / priceData.length;
 
-  // Calculate price range for scaling
   const minPrice = Math.min(...priceData.map(d => d.low));
   const maxPrice = Math.max(...priceData.map(d => d.high));
   const priceRange = maxPrice - minPrice;
 
-  // Scale price to chart height
   const scalePrice = (price: number) => {
     return chartHeight - ((price - minPrice) / priceRange) * chartHeight;
   };
+
+  if (!homepageData) return null;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
@@ -228,11 +230,11 @@ export function Login() {
         {/* Left side - Platform Info */}
         <div className="lg:w-1/2 mb-12 lg:mb-0">
           <h1 className="text-4xl lg:text-6xl font-bold mb-6 pb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
-            Quantum Edge Trading
+            {homepageData?.mainTitle}
           </h1>
 
           <p className="text-xl text-gray-300 mb-8">
-            An exclusive algorithmic trading platform for elite traders.
+            {homepageData?.subTitle}
           </p>
 
           {/* Feature cards with hover effects */}
@@ -243,8 +245,8 @@ export function Login() {
                   <Shield className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Institutional-Grade Security</h3>
-                  <p className="text-gray-400">Advanced encryption and secure infrastructure</p>
+                  <h3 className="font-semibold mb-1">{homepageData?.featuredCardTitle}</h3>
+                  <p className="text-gray-400">{homepageData?.featuredCardDescription}</p>
                 </div>
               </div>
             </div>
@@ -254,8 +256,8 @@ export function Login() {
                   <Zap className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Lightning-Fast Execution</h3>
-                  <p className="text-gray-400">Sub-millisecond order processing</p>
+                  <h3 className="font-semibold mb-1">{homepageData?.featuredCardTitle1}</h3>
+                  <p className="text-gray-400">{homepageData?.featuredCardDescription1}</p>
                 </div>
               </div>
             </div>
@@ -265,8 +267,8 @@ export function Login() {
                   <Globe className="w-6 h-6 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Global Market Access</h3>
-                  <p className="text-gray-400">Trade on multiple exchanges seamlessly</p>
+                  <h3 className="font-semibold mb-1">{homepageData?.featuredCardTitle2}</h3>
+                  <p className="text-gray-400">{homepageData?.featuredCardDescription2}</p>
                 </div>
               </div>
             </div>
