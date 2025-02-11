@@ -86,39 +86,48 @@ export function Login({ homepageData }: { homepageData: Partial<AdminData> | nul
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = isSigningUp ? await registerUser({ email, password, inviteCode }) : await loginUser({ email, password });
+    const result = isSigningUp
+      ? await registerUser({ email, password, inviteCode })
+      : await loginUser({ email, password });
+  
     if (result) {
       toast.success(result.message);
       setUser(result.user);
       setJwtToken(result.token);
-
-      document.cookie = `jwtToken=${result.token}; path=/; Secure; HttpOnly`;
+  
+      // Set the cookie without HttpOnly for client-side access
+      document.cookie = `jwtToken=${result.token}; path=/; Secure;`;
       setEmail('');
       setPassword('');
-      window.localStorage.setItem('jwtToken', result.token);
       redirect('/dashboard');
     }
   };
 
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
+    return null;
+  };
+  
   const handleLoginWithJWT = async () => {
-    const token = window.localStorage.getItem('jwtToken');
-    if (token && !user) {
+    const jwtToken = getCookie('jwtToken'); // Use the utility function to read the cookie
+    console.log(jwtToken)
+    if (jwtToken && !user) {
       const result = await loginWithJWT();
       if (result) {
         toast.success(result.message);
         setUser(result.user);
         setJwtToken(result.token);
-        document.cookie = `jwtToken=${result.token}; path=/; Secure; HttpOnly`;
         setEmail('');
         setPassword('');
-        window.localStorage.setItem('jwtToken', result.token);
         redirect('/dashboard');
       }
     }
-  }
-
+  };
+  
   const hasRun = useRef(false);
-
+  
   useEffect(() => {
     if (!hasRun.current) {
       handleLoginWithJWT();
