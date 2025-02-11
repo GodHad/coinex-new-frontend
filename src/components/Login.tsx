@@ -94,6 +94,7 @@ export function Login({ homepageData }: { homepageData: Partial<AdminData> | nul
       toast.success(result.message);
       setUser(result.user);
       setJwtToken(result.token);
+      window.localStorage.setItem('jwtToken', result.token);
   
       // Set the cookie without HttpOnly for client-side access
       document.cookie = `jwtToken=${result.token}; path=/; Secure;`;
@@ -118,6 +119,7 @@ export function Login({ homepageData }: { homepageData: Partial<AdminData> | nul
       if (result) {
         toast.success(result.message);
         setUser(result.user);
+        window.localStorage.setItem('jwtToken', result.token);
         setJwtToken(result.token);
         setEmail('');
         setPassword('');
