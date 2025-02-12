@@ -34,7 +34,8 @@ export function Settings() {
                 description: ''
             }
         ],
-        maintainanceMode:true,
+        siteMaintainanceMode:true,
+        webhooksMaintainanceMode:true,
         allowSignup:true,
     });
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -76,7 +77,8 @@ export function Settings() {
                         description: adminData.featuredCardDescription || ''
                     }
                 ],
-                maintainanceMode:adminData.maintainanceMode,
+                siteMaintainanceMode:adminData.siteMaintainanceMode,
+                webhooksMaintainanceMode:adminData.webhooksMaintainanceMode,
                 allowSignup: adminData.allowSignup,
                 // inviteCodes: adminData?.inviteCodes
             });
@@ -293,12 +295,12 @@ export function Settings() {
                         {expandedSection === 'system' && (
                             <div className="p-6 w-full">
                                 <div className="space-y-4">
-                                    {/* Maintenance Mode */}
+                                    {/*Site Maintenance Mode */}
                                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <p className="font-medium">Maintenance Mode</p>
-                                                {adminPanelData.maintainanceMode && (
+                                                <p className="font-medium">Site Maintenance Mode</p>
+                                                {adminPanelData.siteMaintainanceMode && (
                                                     <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
                                                         Active
                                                     </span>
@@ -307,13 +309,36 @@ export function Settings() {
                                             <p className="text-sm text-gray-500">Temporarily disable all trading operations</p>
                                         </div>
                                         <button
-                                            onClick={() => setAdminPanelData({...adminPanelData,maintainanceMode:!adminPanelData.maintainanceMode})}
-                                            className={`p-2 rounded-full transition-colors ${adminPanelData.maintainanceMode
+                                            onClick={() => setAdminPanelData({...adminPanelData,siteMaintainanceMode:!adminPanelData.siteMaintainanceMode})}
+                                            className={`p-2 rounded-full transition-colors ${adminPanelData.siteMaintainanceMode
                                                 ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
                                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
                                         >
-                                            {adminPanelData.maintainanceMode ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
+                                            {adminPanelData.siteMaintainanceMode ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
+                                        </button>
+                                    </div>
+                                    {/* Webhooks Maintenance Mode */}
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-medium">Webhooks Maintenance Mode</p>
+                                                {adminPanelData.webhooksMaintainanceMode && (
+                                                    <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                                                        Active
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-gray-500">Temporarily disable all trading operations</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setAdminPanelData({...adminPanelData,webhooksMaintainanceMode:!adminPanelData.webhooksMaintainanceMode})}
+                                            className={`p-2 rounded-full transition-colors ${adminPanelData.webhooksMaintainanceMode
+                                                ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {adminPanelData.webhooksMaintainanceMode ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
                                         </button>
                                     </div>
 

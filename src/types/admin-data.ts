@@ -14,7 +14,8 @@ export type AdminData = {
     featuredCardDescription1: string;
     featuredCardTitle2: string;
     featuredCardDescription2: string;
-    maintainanceMode: boolean,
+    siteMaintainanceMode: boolean;
+    webhooksMaintainanceMode: boolean;
     allowSignup: boolean;
     // inviteCodes?: string[];
 };
