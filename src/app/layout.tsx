@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import App from "./App";
-import { getSocialLinks } from "@/utils/api";
+import { getSidebarTitle, getSocialLinks } from "@/utils/api";
 import { ToastContainer } from "react-toastify";
 import { cookies } from "next/headers";
 
@@ -28,6 +28,8 @@ export default async function RootLayout({
 }>) {
   const jwtToken = (await cookies()).get('jwtToken')?.value;
   const result = await getSocialLinks(jwtToken || '');
+  const data = await getSidebarTitle(jwtToken || '');
+
   return (
     <html lang="en">
       <body
@@ -42,7 +44,7 @@ export default async function RootLayout({
           draggable={true}
           theme='colored'
         />
-        <App socialLinks={result ? result.data : {}}>{children}</App>
+        <App socialLinks={result ? result.data : {}} sidebarTitle={data.sidebarTitle}>{children}</App>
       </body>
     </html>
   );

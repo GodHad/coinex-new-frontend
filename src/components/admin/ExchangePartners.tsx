@@ -1,46 +1,26 @@
 'use client'
-import React, { useState } from 'react';
+import React, {useState,useEffect} from 'react';
 import { Star, Clock, Gift, Plus, Pencil, Save, Trash2, Image as ImageIcon, Check, X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip } from '../../components/Tooltip';
-
-type Exchange = {
-  id: string;
-  name: string;
-  logo: string;
-  description: string;
-  pros: string[];
-  cons: string[];
-  rating: number;
-  currentPromo?: {
-    title: string;
-    description: string;
-    expiry: string;
-  };
-  features: {
-    tradingFee: string;
-    leverage: string;
-    minDeposit: string;
-    assets: string;
-  };
-  affiliateLink: string;
-  enabled: boolean;
-};
+import {getExchangesData, addExchange, updateExchange, deleteExchange, toggleExchangeStatus} from "@/utils/api";
+import { toast } from 'react-toastify';
+import { Exchange } from '@/types/exchanges-data';
 
 const defaultExchange: Partial<Exchange> = {
+  _id:'',
   name: '',
   logo: '',
   description: '',
   pros: [],
   cons: [],
   rating: 4.0,
-  features: {
-    tradingFee: '',
-    leverage: '',
-    minDeposit: '',
-    assets: ''
-  },
-  enabled: false
+  tradingFee: '',
+  leverage: '',
+  minDeposit: '',
+  assets: '',
+  enabled: true,
+  affiliateLink: ''
 };
 
 const StarRating = ({ rating, onChange }: { rating: number; onChange: (rating: number) => void }) => {
@@ -70,51 +50,56 @@ const StarRating = ({ rating, onChange }: { rating: number; onChange: (rating: n
 };
 
 export function ExchangePartners() {
-  const [exchanges, setExchanges] = useState<Exchange[]>([
-    {
-      id: '1',
-      name: 'CoinEx',
-      logo: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=200&h=100',
-      description: 'The world\'s largest crypto exchange by trading volume, offering a comprehensive suite of trading services.',
-      pros: [
-        'High liquidity across all pairs',
-        'Extensive feature set',
-        'Competitive fees',
-        'Advanced trading tools'
-      ],
-      cons: [
-        'Complex for beginners',
-        'Limited customer support',
-        'Regulatory concerns in some regions'
-      ],
-      rating: 4.8,
-      currentPromo: {
-        title: 'New User Bonus',
-        description: 'Get up to $100 in trading fee rebates',
-        expiry: '2024-04-30'
-      },
-      features: {
-        tradingFee: '0.1%',
-        leverage: 'Up to 125x',
-        minDeposit: '$10',
-        assets: '350+'
-      },
-      affiliateLink: 'https://www.coinex.com/register?rc=rbcgu',
-      enabled: true
+  const [exchanges, setExchanges] = useState<Exchange[]>([]);
+  const handleGetExchangesData = async () => {
+    try {
+      const result = await getExchangesData();
+      if (result?.data) {
+        setExchanges(result.data);
+      } else {
+        console.error("Unexpected API response:", result);
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error fetching exchanges:", error);
+      toast.error("Failed to fetch exchanges.");
     }
-  ]);
+  }
+
+  useEffect(() => {
+    handleGetExchangesData();
+  },[])
 
   const [editingExchange, setEditingExchange] = useState<Exchange | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
   const [formData, setFormData] = useState<Partial<Exchange>>(defaultExchange);
   const [expandedExchangeId, setExpandedExchangeId] = useState<string | null>(null);
 
-  const handleSaveExchange = () => {
+  const handleSaveExchange = async () => {
     if (editingExchange) {
-      setExchanges(exchanges.map(e => e.id === editingExchange.id ? { ...formData, id: editingExchange.id } as Exchange : e));
+      console.log(editingExchange)
+      setExchanges(exchanges.map(e => e._id === editingExchange._id ? { ...formData, _id: editingExchange._id } as Exchange : e));
+      console.log("update Exchange");
+      const newFormData = {
+        ...formData,
+        _id : editingExchange._id
+      }
+      const result = await updateExchange(newFormData);
+      console.log(result);      
+      if(result) {
+        toast.success(result.message);
+      }
       setEditingExchange(null);
+
     } else {
-      setExchanges([...exchanges, { ...formData, id: Math.random().toString(36).substring(7) } as Exchange]);
+      console.log("add Exchange");
+      const result = await addExchange(formData);
+      console.log(result);      
+      if(result) {
+        setExchanges([...exchanges, { ...formData, _id: result.data._id } as Exchange]);
+        toast.success(result.message);
+        // setPrevExchanges([...(prevExchanges ?? []),result.data])
+      }
     }
     setShowNewForm(false);
     setFormData(defaultExchange);
@@ -122,16 +107,20 @@ export function ExchangePartners() {
   };
 
   const handleDeleteExchange = (id: string) => {
-    setExchanges(exchanges.filter(e => e.id !== id));
+    setExchanges(exchanges.filter(e => e._id !== id));
+    deleteExchange(id);
     setExpandedExchangeId(null);
     setEditingExchange(null);
     setFormData(defaultExchange);
   };
 
-  const toggleExchange = (id: string) => {
-    setExchanges(exchanges.map(e => 
-      e.id === id ? { ...e, enabled: !e.enabled } : e
-    ));
+  const toggleExchange = async (id: string) => {
+    const result = await toggleExchangeStatus(id);
+    if (result) {
+      setExchanges(exchanges.map(e => 
+        e._id === id ? { ...e, enabled: !e.enabled } : e
+      ));
+    }
   };
 
   const startEditing = (exchange: Exchange) => {
@@ -139,9 +128,13 @@ export function ExchangePartners() {
     setFormData({
       ...exchange,
       currentPromo: exchange.currentPromo ? { ...exchange.currentPromo } : undefined,
-      features: { ...exchange.features },
+      tradingFee:exchange.tradingFee,
+      leverage:exchange.leverage,
+      minDeposit:exchange.minDeposit,
+      assets:exchange.assets,
       pros: [...exchange.pros],
-      cons: [...exchange.cons]
+      cons: [...exchange.cons],
+      affiliateLink: exchange.affiliateLink ?? ''
     });
   };
 
@@ -287,10 +280,10 @@ export function ExchangePartners() {
             <label className="block text-sm text-gray-600 mb-1">Trading Fee</label>
             <input
               type="text"
-              value={formData.features?.tradingFee}
+              value={formData?.tradingFee}
               onChange={(e) => setFormData({
                 ...formData,
-                features: { ...(formData.features || {}), tradingFee: e.target.value, leverage: formData.features?.leverage || '', minDeposit: formData.features?.minDeposit || '', assets: formData.features?.assets || '' }
+                tradingFee: e.target.value,
               })}
               className="w-full rounded-lg border-gray-300"
               placeholder="e.g., 0.1%"
@@ -300,15 +293,10 @@ export function ExchangePartners() {
             <label className="block text-sm text-gray-600 mb-1">Leverage</label>
             <input
               type="text"
-              value={formData.features?.leverage}
+              value={formData?.leverage}
               onChange={(e) => setFormData({
                 ...formData,
-                features: { 
-                  tradingFee: formData.features?.tradingFee || '', 
-                  leverage: e.target.value, 
-                  minDeposit: formData.features?.minDeposit || '', 
-                  assets: formData.features?.assets || '' 
-                }
+                leverage: e.target.value, 
               })}
               className="w-full rounded-lg border-gray-300"
               placeholder="e.g., Up to 125x"
@@ -318,15 +306,10 @@ export function ExchangePartners() {
             <label className="block text-sm text-gray-600 mb-1">Min Deposit</label>
             <input
               type="text"
-              value={formData.features?.minDeposit}
+              value={formData?.minDeposit}
               onChange={(e) => setFormData({
                 ...formData,
-                features: { 
-                  tradingFee: formData.features?.tradingFee || '', 
-                  leverage: formData.features?.leverage || '', 
                   minDeposit: e.target.value, 
-                  assets: formData.features?.assets || '' 
-                }
               })}
               className="w-full rounded-lg border-gray-300"
               placeholder="e.g., $10"
@@ -336,15 +319,10 @@ export function ExchangePartners() {
             <label className="block text-sm text-gray-600 mb-1">Assets</label>
             <input
               type="text"
-              value={formData.features?.assets}
+              value={formData?.assets}
               onChange={(e) => setFormData({
                 ...formData,
-                features: { 
-                  tradingFee: formData.features?.tradingFee || '', 
-                  leverage: formData.features?.leverage || '', 
-                  minDeposit: formData.features?.minDeposit || '', 
-                  assets: e.target.value 
-                }
+                assets: e.target.value 
               })}
               className="w-full rounded-lg border-gray-300"
               placeholder="e.g., 350+"
@@ -358,7 +336,7 @@ export function ExchangePartners() {
         <input
           type="text"
           value={formData.affiliateLink}
-          onChange={(e) => setFormData({ ...formData, affiliateLink: e.target.value })}
+          onChange={(e) => setFormData(prev => ({ ...prev, affiliateLink: e.target.value }))}
           className="w-full rounded-lg border-gray-300"
           placeholder="Enter affiliate link..."
         />
@@ -414,11 +392,11 @@ export function ExchangePartners() {
 
         <div className="divide-y divide-gray-100">
           {exchanges.map((exchange) => (
-            <div key={exchange.id} className="p-6">
+            <div key={exchange._id} className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <button
-                    onClick={() => toggleExchange(exchange.id)}
+                    onClick={() => toggleExchange(exchange._id)}
                     className={`p-2 rounded-full ${
                       exchange.enabled
                         ? 'bg-green-100 text-green-600 hover:bg-green-200'
@@ -448,11 +426,11 @@ export function ExchangePartners() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setExpandedExchangeId(expandedExchangeId === exchange.id ? null : exchange.id)}
+                    onClick={() => setExpandedExchangeId(expandedExchangeId === exchange._id ? null : exchange._id)}
                     className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
                   >
                     <ChevronDown className={`w-5 h-5 transition-transform ${
-                      expandedExchangeId === exchange.id ? 'transform rotate-180' : ''
+                      expandedExchangeId === exchange._id ? 'transform rotate-180' : ''
                     }`} />
                   </button>
                   <button
@@ -462,7 +440,7 @@ export function ExchangePartners() {
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDeleteExchange(exchange.id)}
+                    onClick={() => handleDeleteExchange(exchange._id)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-full"
                   >
                     <Trash2 className="w-5 h-5" />
@@ -470,7 +448,7 @@ export function ExchangePartners() {
                 </div>
               </div>
 
-              {expandedExchangeId === exchange.id && (
+              {expandedExchangeId === exchange._id && (
                 <div className="mt-4 space-y-4">
                   <Image
                     src={exchange.logo}
@@ -508,19 +486,19 @@ export function ExchangePartners() {
                   <div className="grid grid-cols-4 gap-4">
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p className="text-sm text-gray-500">Trading Fee</p>
-                      <p className="font-medium">{exchange.features.tradingFee}</p>
+                      <p className="font-medium">{exchange.tradingFee}</p>
                     </div>
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p className="text-sm text-gray-500">Leverage</p>
-                      <p className="font-medium">{exchange.features.leverage}</p>
+                      <p className="font-medium">{exchange.leverage}</p>
                     </div>
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p className="text-sm text-gray-500">Min Deposit</p>
-                      <p className="font-medium">{exchange.features.minDeposit}</p>
+                      <p className="font-medium">{exchange.minDeposit}</p>
                     </div>
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p className="text-sm text-gray-500">Assets</p>
-                      <p className="font-medium">{exchange.features.assets}</p>
+                      <p className="font-medium">{exchange.assets}</p>
                     </div>
                   </div>
 
@@ -542,7 +520,7 @@ export function ExchangePartners() {
                 </div>
               )}
 
-              {editingExchange?.id === exchange.id && (
+              {editingExchange?._id === exchange._id && (
                 <div className="mt-4 border-t pt-4">
                   {renderExchangeForm()}
                 </div>

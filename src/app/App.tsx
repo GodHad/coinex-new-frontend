@@ -15,10 +15,11 @@ interface Props {
         telegram?: string;
         discord?: string;
         instagram?: string;
-    }
+    },
+    sidebarTitle: string;
 }
 
-export default function App({ children, socialLinks }: Props) {
+export default function App({ children, socialLinks, sidebarTitle }: Props) {
     const pathname = usePathname();
 
     const { setUser } = useContext(UserContext);
@@ -38,6 +39,7 @@ export default function App({ children, socialLinks }: Props) {
                 <AuthRoute>
                     <div className="flex">
                         <Sidebar
+                            sidebarTitle={sidebarTitle}
                             socialLinks={socialLinks}
                             currentPath={pathname}
                             onLogout={handleLogout}

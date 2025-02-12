@@ -42,14 +42,14 @@ export function Dashboard() {
         totalRisk: 0
     });
 
-    const handleGetOverview = async (jwtToken: string) => {
-        const res = await getDashboardOverview(jwtToken);
+    const handleGetOverview = async () => {
+        const res = await getDashboardOverview();
         if (res) setTotalStats(res);
         console.log(res)
     }
 
     useEffect(() => {
-        handleGetOverview(jwtToken);
+        handleGetOverview();
         handleGetHooks(jwtToken);
     }, [jwtToken]);
 

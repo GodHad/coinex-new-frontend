@@ -1,10 +1,17 @@
 import PremiumGuide from "@/components/documentation/PremiumGuide";
+import { getPageData } from "@/utils/api";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: "Webhooks | Documentation | Guide | Premium",
-    description: "Documentation | Guide | Premium",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const pageData = await getPageData();
+  return {
+        title: `${pageData.pageTitle || 'Webhooks'} | Documentation | Guide | Premium`,
+        description: "Documentation | Guide | Premium",
+        icons: {
+            icon: pageData.favicon,
+        },
+    };
+}
 
 const CoinexPage: React.FC = () => {
   return (

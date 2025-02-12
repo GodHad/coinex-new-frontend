@@ -31,11 +31,12 @@ interface SidebarProps {
         telegram?: string;
         discord?: string;
         instagram?: string;
-    }
+    };
+    sidebarTitle: string;
     onLogout: () => void;
 }
 
-export function Sidebar({ currentPath, socialLinks, onLogout }: SidebarProps) {
+export function Sidebar({ currentPath, socialLinks, sidebarTitle, onLogout }: SidebarProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
@@ -151,7 +152,7 @@ export function Sidebar({ currentPath, socialLinks, onLogout }: SidebarProps) {
                 }`}>
                 <div className="">
                     <div className="p-4">
-                        <h1 className="text-2xl font-bold">Webhook Manager</h1>
+                        <h1 className="text-2xl font-bold">{sidebarTitle}</h1>
                     </div>
                     <nav className="flex-1">
                         <ul className="space-y-1 px-2">

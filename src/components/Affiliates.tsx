@@ -1,131 +1,40 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ExternalLink, Star, Shield, DollarSign, Clock, Globe, Zap, Gift, Percent } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import Image from 'next/image';
-
-type Exchange = {
-  name: string;
-  logo: string;
-  description: string;
-  pros: string[];
-  cons: string[];
-  rating: number;
-  currentPromo?: {
-    title: string;
-    description: string;
-    expiry?: string;
-  };
-  features: {
-    tradingFee: string;
-    leverage: string;
-    minDeposit: string;
-    assets: string;
-  };
-  affiliateLink: string;
-  comingSoon?: boolean;
-};
+import { Exchange } from '@/types/exchanges-data';
+import { getExchangesData } from '@/utils/api';
+import { toast } from 'react-toastify';
 
 export function Affiliates() {
-  const exchanges: Exchange[] = [
-    {
-      name: 'Coinex',
-      logo: 'https://images.unsplash.com/photo-1622630998477-20aa696ecb05?auto=format&fit=crop&w=200&h=100',
-      description: 'CoinEx is a global cryptocurrency exchange that offers trading services for a wide range of digital assets.',
-      pros: [
-        'Wide range of cryptocurrencies',
-        'Competitive fees',
-        'No KYC requirement for basic trading',
-        'High liquidity'
-      ],
-      cons: [
-        'High withdrawal fees',
-        'Limited regulatory compliance',
-        'CET token dependency for discounts'
-      ],
-      rating: 4.8,
-      currentPromo: {
-        title: 'New User Bonus',
-        description: 'CoinEx offers new users a bonus of up to $100 worth of vouchers. To receive the bonus, users must complete tasks in the Newcomer Zone.',
-        expiry: '2025-02-15'
-      },
-      features: {
-        tradingFee: '0.2%',
-        leverage: 'Up to 100x',
-        minDeposit: 'No minimum deposit.',
-        assets: '1000+'
-      },
-      affiliateLink: 'https://www.coinex.com/'
-    },
-    {
-      name: 'Bybit',
-      logo: 'https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=200&h=100',
-      description: 'Leading derivatives exchange known for its robust trading engine and user-friendly interface.',
-      pros: [
-        'Fast execution speed',
-        'Intuitive interface',
-        'Good customer support',
-        'Regular promotions'
-      ],
-      cons: [
-        'Lower spot trading volume',
-        'Limited payment methods',
-        'Fewer trading pairs than competitors'
-      ],
-      rating: 4.6,
-      currentPromo: {
-        title: 'Welcome Package',
-        description: '$30,000 in rewards for new users',
-        expiry: '2024-05-15'
-      },
-      features: {
-        tradingFee: '0.075%',
-        leverage: 'Up to 100x',
-        minDeposit: '$20',
-        assets: '250+'
-      },
-      affiliateLink: 'https://www.bybit.com/register',
-      comingSoon: true
-    },
-    {
-      name: 'KuCoin',
-      logo: 'https://images.unsplash.com/photo-1621504450181-5d356f61d307?auto=format&fit=crop&w=200&h=100',
-      description: 'Popular exchange offering a wide range of altcoins and trading features.',
-      pros: [
-        'Large selection of altcoins',
-        'Low trading fees',
-        'Advanced trading features',
-        'Good mobile app'
-      ],
-      cons: [
-        'Interface can be overwhelming',
-        'Slower customer support',
-        'Limited fiat options'
-      ],
-      rating: 4.5,
-      currentPromo: {
-        title: 'Trading Bonus',
-        description: 'Earn up to 40% trading fee rebate',
-        expiry: '2024-04-15'
-      },
-      features: {
-        tradingFee: '0.1%',
-        leverage: 'Up to 100x',
-        minDeposit: '$5',
-        assets: '600+'
-      },
-      affiliateLink: 'https://www.kucoin.com/register',
-      comingSoon: true
+  const [exchanges, setExchanges] = useState<Exchange[]>([]);
+  const handleGetExchangesData = async () => {
+    try {
+      const result = await getExchangesData();
+      if (result?.data) {
+        setExchanges(result.data);
+      } else {
+        console.error("Unexpected API response:", result);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Error fetching exchanges:", error);
+      toast.error("Failed to fetch exchanges.");
     }
-  ];
+  }
+
+  useEffect(() => {
+    handleGetExchangesData();
+  }, [])
 
   const renderRatingStars = (rating: number) => {
     return [...Array(5)].map((_, index) => (
       <Star
         key={index}
         className={`w-4 h-4 ${index < rating
-            ? 'text-yellow-400 fill-yellow-400'
-            : 'text-gray-300'
+          ? 'text-yellow-400 fill-yellow-400'
+          : 'text-gray-300'
           }`}
       />
     ));
@@ -148,7 +57,7 @@ export function Affiliates() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {exchanges.map((exchange) => (
             <div key={exchange.name} className="relative bg-white rounded-xl shadow-md overflow-hidden">
-              {exchange.comingSoon && (
+              {!exchange.enabled && (
                 <div className="absolute inset-0 backdrop-blur-[7px] bg-black/70 z-10 flex items-center justify-center">
                   <div className="text-center">
                     <Clock className="w-8 h-8 text-white mx-auto mb-2" />
@@ -197,21 +106,21 @@ export function Affiliates() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Percent className="w-4 h-4" />
-                      <span>Trading Fee: {exchange.features.tradingFee}</span>
+                      <span>Trading Fee: {exchange.tradingFee}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Zap className="w-4 h-4" />
-                      <span>Leverage: {exchange.features.leverage}</span>
+                      <span>Leverage: {exchange.leverage}</span>
                     </div>
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <DollarSign className="w-4 h-4" />
-                      <span>Min Deposit: {exchange.features.minDeposit}</span>
+                      <span>Min Deposit: {exchange.minDeposit}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Globe className="w-4 h-4" />
-                      <span>Assets: {exchange.features.assets}</span>
+                      <span>Assets: {exchange.assets}</span>
                     </div>
                   </div>
                 </div>

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Zap, Globe, ChevronRight } from 'lucide-react';
 import UserContext from '@/contexts/UserContext';
 import { redirect } from 'next/navigation';
-import { loginUser, loginWithJWT, registerUser } from '@/utils/api';
+import { getCookie, loginUser, loginWithJWT, registerUser } from '@/utils/api';
 import { toast } from 'react-toastify';
 import { AdminData } from '@/types/admin-data';
 
@@ -103,17 +103,9 @@ export function Login({ homepageData }: { homepageData: Partial<AdminData> | nul
       redirect('/dashboard');
     }
   };
-
-  const getCookie = (name: string) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-    return null;
-  };
   
   const handleLoginWithJWT = async () => {
     const jwtToken = getCookie('jwtToken'); // Use the utility function to read the cookie
-    console.log(jwtToken)
     if (jwtToken && !user) {
       const result = await loginWithJWT();
       if (result) {

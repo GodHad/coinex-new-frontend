@@ -1,13 +1,19 @@
 import { AdminPanel } from "@/components/Admin";
 import AdminRoute from "@/components/AdminRoute";
-import { getOverview } from "@/utils/api";
+import { getOverview, getPageData } from "@/utils/api";
 import { Metadata } from "next";
 import { cookies } from "next/headers";
 
-export const metadata: Metadata = {
-    title: "Webhooks | Admin",
-    description: "Admin",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const pageData = await getPageData();
+  return {
+        title: `${pageData.pageTitle || 'Webhooks'} | Admin`,
+        description: "Admin page",
+        icons: {
+            icon: pageData.favicon,
+        },
+    };
+}
 
 export default async function AdminPage() {
     const jwtToken = (await cookies()).get('jwtToken')?.value;

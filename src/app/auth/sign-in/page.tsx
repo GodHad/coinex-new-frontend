@@ -1,11 +1,17 @@
 import { Login } from "@/components/Login";
-import { getHomepageData } from "@/utils/api";
+import { getHomepageData, getPageData } from "@/utils/api";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Webhooks | Sign In",
-  description: "Sign in to your account",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const pageData = await getPageData();
+  return {
+    title: `${pageData.pageTitle || 'Webhooks'} | Sign In`,
+    description: "Sign in to your account",
+    icons: {
+      icon: pageData.favicon,
+    },
+  };
+}
 
 export default async function SignInPage() {
   const result = await getHomepageData();
