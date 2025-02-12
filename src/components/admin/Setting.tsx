@@ -306,7 +306,7 @@ export function Settings() {
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="text-sm text-gray-500">Temporarily disable all trading operations</p>
+                                            <p className="text-sm text-gray-500">Temporarily disable all site operations</p>
                                         </div>
                                         <button
                                             onClick={() => setAdminPanelData({...adminPanelData,siteMaintainanceMode:!adminPanelData.siteMaintainanceMode})}
