@@ -260,6 +260,7 @@ export function Premium() {
               )} */}
               <div className="relative">
                 <Image
+  unoptimized
                   src={signal.imageUrl}
                   alt={signal.pair}
                   className="w-full h-48 object-cover"

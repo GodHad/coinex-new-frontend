@@ -1,14 +1,14 @@
 'use client'
-import React, {useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Clock, Gift, Plus, Pencil, Save, Trash2, Image as ImageIcon, Check, X, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip } from '../../components/Tooltip';
-import {getExchangesData, addExchange, updateExchange, deleteExchange, toggleExchangeStatus} from "@/utils/api";
+import { getExchangesData, addExchange, updateExchange, deleteExchange, toggleExchangeStatus } from "@/utils/api";
 import { toast } from 'react-toastify';
 import { Exchange } from '@/types/exchanges-data';
 
 const defaultExchange: Partial<Exchange> = {
-  _id:'',
+  _id: '',
   name: '',
   logo: '',
   description: '',
@@ -37,11 +37,10 @@ const StarRating = ({ rating, onChange }: { rating: number; onChange: (rating: n
           className="p-0.5 hover:scale-110 transition-transform"
         >
           <Star
-            className={`w-6 h-6 transition-colors ${
-              (hoverRating !== null ? star <= hoverRating : star <= rating)
+            className={`w-6 h-6 transition-colors ${(hoverRating !== null ? star <= hoverRating : star <= rating)
                 ? 'text-yellow-400 fill-yellow-400'
                 : 'text-gray-300'
-            }`}
+              }`}
           />
         </button>
       ))}
@@ -59,7 +58,7 @@ export function ExchangePartners() {
       } else {
         console.error("Unexpected API response:", result);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error fetching exchanges:", error);
       toast.error("Failed to fetch exchanges.");
@@ -68,7 +67,7 @@ export function ExchangePartners() {
 
   useEffect(() => {
     handleGetExchangesData();
-  },[])
+  }, [])
 
   const [editingExchange, setEditingExchange] = useState<Exchange | null>(null);
   const [showNewForm, setShowNewForm] = useState(false);
@@ -82,11 +81,11 @@ export function ExchangePartners() {
       console.log("update Exchange");
       const newFormData = {
         ...formData,
-        _id : editingExchange._id
+        _id: editingExchange._id
       }
       const result = await updateExchange(newFormData);
-      console.log(result);      
-      if(result) {
+      console.log(result);
+      if (result) {
         toast.success(result.message);
       }
       setEditingExchange(null);
@@ -94,8 +93,8 @@ export function ExchangePartners() {
     } else {
       console.log("add Exchange");
       const result = await addExchange(formData);
-      console.log(result);      
-      if(result) {
+      console.log(result);
+      if (result) {
         setExchanges([...exchanges, { ...formData, _id: result.data._id } as Exchange]);
         toast.success(result.message);
         // setPrevExchanges([...(prevExchanges ?? []),result.data])
@@ -117,7 +116,7 @@ export function ExchangePartners() {
   const toggleExchange = async (id: string) => {
     const result = await toggleExchangeStatus(id);
     if (result) {
-      setExchanges(exchanges.map(e => 
+      setExchanges(exchanges.map(e =>
         e._id === id ? { ...e, enabled: !e.enabled } : e
       ));
     }
@@ -128,10 +127,10 @@ export function ExchangePartners() {
     setFormData({
       ...exchange,
       currentPromo: exchange.currentPromo ? { ...exchange.currentPromo } : undefined,
-      tradingFee:exchange.tradingFee,
-      leverage:exchange.leverage,
-      minDeposit:exchange.minDeposit,
-      assets:exchange.assets,
+      tradingFee: exchange.tradingFee,
+      leverage: exchange.leverage,
+      minDeposit: exchange.minDeposit,
+      assets: exchange.assets,
       pros: [...exchange.pros],
       cons: [...exchange.cons],
       affiliateLink: exchange.affiliateLink ?? ''
@@ -296,7 +295,7 @@ export function ExchangePartners() {
               value={formData?.leverage}
               onChange={(e) => setFormData({
                 ...formData,
-                leverage: e.target.value, 
+                leverage: e.target.value,
               })}
               className="w-full rounded-lg border-gray-300"
               placeholder="e.g., Up to 125x"
@@ -309,7 +308,7 @@ export function ExchangePartners() {
               value={formData?.minDeposit}
               onChange={(e) => setFormData({
                 ...formData,
-                  minDeposit: e.target.value, 
+                minDeposit: e.target.value,
               })}
               className="w-full rounded-lg border-gray-300"
               placeholder="e.g., $10"
@@ -322,7 +321,7 @@ export function ExchangePartners() {
               value={formData?.assets}
               onChange={(e) => setFormData({
                 ...formData,
-                assets: e.target.value 
+                assets: e.target.value
               })}
               className="w-full rounded-lg border-gray-300"
               placeholder="e.g., 350+"
@@ -397,11 +396,10 @@ export function ExchangePartners() {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => toggleExchange(exchange._id)}
-                    className={`p-2 rounded-full ${
-                      exchange.enabled
+                    className={`p-2 rounded-full ${exchange.enabled
                         ? 'bg-green-100 text-green-600 hover:bg-green-200'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     {exchange.enabled ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
                   </button>
@@ -412,11 +410,10 @@ export function ExchangePartners() {
                         {[...Array(5)].map((_, index) => (
                           <Star
                             key={index}
-                            className={`w-4 h-4 ${
-                              index < exchange.rating
+                            className={`w-4 h-4 ${index < exchange.rating
                                 ? 'text-yellow-400 fill-yellow-400'
                                 : 'text-gray-300'
-                            }`}
+                              }`}
                           />
                         ))}
                       </div>
@@ -429,9 +426,8 @@ export function ExchangePartners() {
                     onClick={() => setExpandedExchangeId(expandedExchangeId === exchange._id ? null : exchange._id)}
                     className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
                   >
-                    <ChevronDown className={`w-5 h-5 transition-transform ${
-                      expandedExchangeId === exchange._id ? 'transform rotate-180' : ''
-                    }`} />
+                    <ChevronDown className={`w-5 h-5 transition-transform ${expandedExchangeId === exchange._id ? 'transform rotate-180' : ''
+                      }`} />
                   </button>
                   <button
                     onClick={() => startEditing(exchange)}
@@ -451,6 +447,7 @@ export function ExchangePartners() {
               {expandedExchangeId === exchange._id && (
                 <div className="mt-4 space-y-4">
                   <Image
+                    unoptimized
                     src={exchange.logo}
                     alt={exchange.name}
                     width={200}

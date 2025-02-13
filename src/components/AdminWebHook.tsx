@@ -192,7 +192,8 @@ export default function AdminWebHook() {
                         placeholder="Enter image URL..."
                     />
                     <button className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
-                        <ImageIcon className="w-5 h-5" />
+                        <Image
+  unoptimizedIcon className="w-5 h-5" />
                     </button>
                 </div>
             </div>
@@ -331,6 +332,7 @@ export default function AdminWebHook() {
                             {expandedSignalId === signal._id && (
                                 <div className="mt-4 space-y-4">
                                     <Image
+  unoptimized
                                         src={signal.imageUrl}
                                         alt={signal.pair}
                                         className="w-full h-48 object-cover rounded-lg"

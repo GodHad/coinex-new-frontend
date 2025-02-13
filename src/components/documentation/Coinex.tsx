@@ -267,6 +267,7 @@ const RenderCoinexGuide = () => {
                         {step.image && (
                             <div className="mt-4">
                                 <Image
+  unoptimized
                                     src={step.image}
                                     alt={`Screenshot for ${step.title}`}
                                     className="w-full rounded-lg shadow-md"

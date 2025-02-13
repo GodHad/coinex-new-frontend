@@ -67,6 +67,7 @@ export function Affiliates() {
               )}
               <div className="relative h-32 bg-gradient-to-r from-blue-500 to-blue-600">
                 <Image
+  unoptimized
                   src={exchange.logo}
                   alt={exchange.name}
                   className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50"
