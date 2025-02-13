@@ -10,21 +10,21 @@ import { Webhook } from '@/types/hooks';
 import { toast } from 'react-toastify';
 
 const timeFrames = [
-  '5m', 
-  '15m', 
-  '30m', 
-  '45m', 
-  '1h', 
-  '2h', 
-  '3h', 
-  '4h', 
+  '5m',
+  '15m',
+  '30m',
+  '45m',
+  '1h',
+  '2h',
+  '3h',
+  '4h',
   '1d'
 ];
 
 const cryptoPairs = [
   'SOL/USDT',
-  'BTC/USDT', 
-  'ETH/USDT', 
+  'BTC/USDT',
+  'ETH/USDT',
 ];
 
 export function Premium() {
@@ -260,7 +260,7 @@ export function Premium() {
               )} */}
               <div className="relative">
                 <Image
-  unoptimized
+                  unoptimized
                   src={signal.imageUrl}
                   alt={signal.pair}
                   className="w-full h-48 object-cover"
@@ -303,14 +303,14 @@ export function Premium() {
                 <div className="grid grid-cols-4 gap-4 text-center mb-4">
                   <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Win Rate</p>
-                    <p className={`font-bold ${signal.winRate && signal.winRate >= 0 ? 'text-green-600' : 'text-red-600' }`}>{signal.winRate?.toFixed(2) || 0}%</p>
+                    <p className={`font-bold ${signal.winRate && signal.winRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>{signal.winRate?.toFixed(2) || 0}%</p>
                   </div>
                   <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Avg. Profit</p>
-                    <p className={`font-bold ${signal.avgPnl && signal.avgPnl >= 0 ? 'text-green-600' : 'text-red-600' }`}>${signal.avgPnl?.toFixed(2) || 0}</p>
+                    <p className={`font-bold ${signal.avgPnl && signal.avgPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>${signal.avgPnl?.toFixed(2) || 0}</p>
                   </div>
                   <div className="flex flex-col justify-between">
-                    <p className="text-sm text-gray-500">Signals</p>
+                    <p className="text-sm text-gray-500">Signal Count</p>
                     <p className="font-bold text-blue-600">{signal.signals}</p>
                   </div>
                   <div className="flex flex-col justify-between">
@@ -345,7 +345,7 @@ export function Premium() {
                       } disabled:bg-yellow-400 disabled:cursor-not-allowed mx-4`}
                     disabled={!isPremium}
                   >
-                    {isPremium ? 
+                    {isPremium ?
                       signal.hook ? (
                         <>
                           <Check className="w-4 h-4" />

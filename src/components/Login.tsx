@@ -141,7 +141,13 @@ export function Login({ homepageData }: { homepageData: Partial<AdminData> | nul
     return chartHeight - ((price - minPrice) / priceRange) * chartHeight;
   };
 
+  useEffect(() => {
+    console.log(homepageData)
+    if (homepageData?.siteMaintainanceMode) toast.error('Site is currently in maintenance. Please try again later')
+  }, [homepageData])
+
   if (!homepageData) return null;
+
 
   return (
     <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
