@@ -192,8 +192,7 @@ export default function AdminWebHook() {
                         placeholder="Enter image URL..."
                     />
                     <button className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
-                        <Image
-  unoptimizedIcon className="w-5 h-5" />
+                        <ImageIcon className="w-5 h-5" />
                     </button>
                 </div>
             </div>
