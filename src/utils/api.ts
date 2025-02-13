@@ -249,11 +249,11 @@ export const deleteAdminHook = async (id: string) => {
     }
 }
 
-export const getOverview = async (jwtToken: string) => {
+export const getOverview = async () => {
     try {
         const response = await axios.get(`${backendUrl}api/admin/overview`, {
             headers: {
-                Authorization: `Bearer ${jwtToken}`
+                Authorization: `Bearer ${getCookie('jwtToken')}`
             }
         });
 

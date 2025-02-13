@@ -27,38 +27,6 @@ const cryptoPairs = [
   'ETH/USDT', 
 ];
 
-const getTimeframeDescription = (timeframe: string, pair: string): string => {
-  const base = pair.split('/')[0];
-  switch (timeframe) {
-    case '5m':
-    case '15m':
-    case '30m':
-      return `Short-term ${base} scalping signals optimized for quick trades. Higher volatility but more frequent opportunities.`;
-    case '45m':
-    case '1h':
-    case '2h':
-    case '3h':
-      return `Medium-term ${base} trading signals with balanced risk-reward. Ideal for day trading with clearer trend confirmation.`;
-    case '4h':
-    case '1d':
-      return `Long-term ${base} position trading focusing on macro trends. Lower frequency but higher probability setups.`;
-    default:
-      return '';
-  }
-};
-
-const getCryptoImage = (pair: string): string => {
-  switch (pair) {
-    case 'BTC/USDT':
-      return 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?auto=format&fit=crop&q=80&w=400&h=300';
-    case 'ETH/USDT':
-      return 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&q=80&w=400&h=300';
-    case 'SOL/USDT':
-      return 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=400&h=300';
-    default: return ''
-  }
-};
-
 export function Premium() {
   const { user } = useContext(UserContext);
   const isPremium = !!(user?.subscribed === 1 && user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now());
@@ -292,7 +260,7 @@ export function Premium() {
               )} */}
               <div className="relative">
                 <Image
-                  src={getCryptoImage(signal.pair)}
+                  src={signal.imageUrl}
                   alt={signal.pair}
                   className="w-full h-48 object-cover"
                   width={400}
@@ -328,7 +296,7 @@ export function Premium() {
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-600 text-sm">{getTimeframeDescription(signal.timeframe || '', signal.pair)}</p>
+                  <p className="text-gray-600 text-sm">{signal.description}</p>
                 </div>
 
                 <div className="grid grid-cols-4 gap-4 text-center mb-4">

@@ -4,7 +4,7 @@ import "./globals.css";
 import App from "./App";
 import { getSidebarTitle, getSocialLinks } from "@/utils/api";
 import { ToastContainer } from "react-toastify";
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,9 +26,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jwtToken = (await cookies()).get('jwtToken')?.value;
-  const result = await getSocialLinks(jwtToken || '');
-  const data = await getSidebarTitle(jwtToken || '');
+  // const jwtToken = (await cookies()).get('jwtToken')?.value;
+  const result = await getSocialLinks('');
+  const data = await getSidebarTitle('');
 
   return (
     <html lang="en">

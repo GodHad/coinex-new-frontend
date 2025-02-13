@@ -3,19 +3,21 @@ import React, { useEffect, useState } from 'react';
 import { Users, Activity, AlertTriangle, Lock, Eye, EyeOff, User as UserIcon, Webhook as WebhookIcon, Crown, DollarSign, Search, MoreVertical, Ban, UserPlus, ChevronDown, ArrowUpRight, ArrowDownRight, ArrowLeftRight } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import { User } from '@/contexts/UserContext';
-import { deleteUser, getGeneralHooks, getUsers, updateSubscribe, addUser } from '@/utils/api';
+import { deleteUser, getGeneralHooks, getUsers, updateSubscribe, addUser, getOverview } from '@/utils/api';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import { Webhook } from '@/types/hooks';
 import AdminWebHook from './AdminWebHook';
 import { motion } from 'framer-motion';
 import { Settings } from './admin/Setting';
+import LoadingSpinner from './common/Loading';
 
 const convertPercent = (percent: number) => {
     return `${percent > 0 ? '+' : ''}${percent.toFixed(2)}%`
 }
 
-export function AdminPanel({ overview }: { overview: Record<string, number> }) {
+export function AdminPanel() {
+    const [overview, setOverview] = useState<Record<string, number>>({});
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'webhooks' | 'settings' | 'adminWebhooks'>('overview');
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
@@ -161,9 +163,17 @@ export function AdminPanel({ overview }: { overview: Record<string, number> }) {
         }
     }
 
+    const handleGetOverview = async () => {
+        const result = await getOverview();
+        if (result) {
+            setOverview(result)
+        }
+    }
+
     useEffect(() => {
         handleGetUsers();
         handleGetAdminWebhooks();
+        handleGetOverview();
     }, [])
 
     const renderOverview = () => (
@@ -175,13 +185,15 @@ export function AdminPanel({ overview }: { overview: Record<string, number> }) {
                             <div className={`${stat.color} text-white p-3 rounded-lg`}>
                                 {stat.icon}
                             </div>
+                            {stat.change ?  
                             <span className={`text-sm font-medium ${stat.change && stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
                                 }`}>
                                 {stat.change}
                             </span>
+                            : <LoadingSpinner className="w-4 h-4" />}
                         </div>
                         <h3 className="text-gray-500 text-sm font-medium">{stat.title}</h3>
-                        <p className="text-2xl font-bold">{stat.value}</p>
+                        {stat.value ? <p className="text-2xl font-bold">{stat.value}</p> : <LoadingSpinner />}
                     </div>
                 ))}
             </div>
