@@ -327,16 +327,19 @@ export const updateAdminData = async (adminData: Partial<AdminData>) => {
 
 export const getHomepageData = async () => {
     try {
-        const response = await axios.get(`${backendUrl}api/users/homepage`, {
+        const res = await fetch(`${backendUrl}api/users/homepage`, {
             headers: { "Cache-Control": "no-store" }
         });
 
-        return response.data;
+        if (!res.ok) throw new Error("Failed to fetch data");
+
+        return await res.json();
     } catch (error: any) {
-        toast.error(error.response.data.message || error.message || error);
+        console.error(error.message || "Error fetching data");
         return false;
     }
-}
+};
+
 
 export const getSocialLinks = async (jwtToken: string) => {
     try {
