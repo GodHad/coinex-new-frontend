@@ -28,6 +28,7 @@ export default function App({ children, socialLinks, sidebarTitle }: Props) {
     const handleLogout = () => {
         setUser(null);
         window.localStorage.removeItem('jwtToken');
+        document.cookie = `jwtToken=''; path=/; Secure;`;
         router.push('/auth/sign-in');
     }
 
