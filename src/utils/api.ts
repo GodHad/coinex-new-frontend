@@ -327,7 +327,9 @@ export const updateAdminData = async (adminData: Partial<AdminData>) => {
 
 export const getHomepageData = async () => {
     try {
-        const response = await axios.get(`${backendUrl}api/users/homepage`);
+        const response = await axios.get(`${backendUrl}api/users/homepage`, {
+            headers: { "Cache-Control": "no-store" }
+        });
 
         return response.data;
     } catch (error: any) {
@@ -340,12 +342,13 @@ export const getSocialLinks = async (jwtToken: string) => {
     try {
         const response = await axios.get(`${backendUrl}api/users/social-links`, {
             headers: {
-                Authorization: `Bearer ${jwtToken}`
+                Authorization: `Bearer ${jwtToken}`,
+                "Cache-Control": "no-store"
             }
         });
 
         return response.data;
-    } catch(error: any) {
+    } catch (error: any) {
         console.error(error)
         return false;
     }
@@ -355,12 +358,13 @@ export const getSidebarTitle = async (jwtToken: string) => {
     try {
         const response = await axios.get(`${backendUrl}api/users/get-sidebar-title`, {
             headers: {
-                Authorization: `Bearer ${jwtToken}`
+                Authorization: `Bearer ${jwtToken}`,
+                "Cache-Control": "no-store"
             }
         });
 
         return response.data;
-    } catch(error: any) {
+    } catch (error: any) {
         console.error(error)
         return false;
     }
@@ -374,7 +378,7 @@ export const getExchangesData = async () => {
         });
 
         return response.data;
-    } catch(error: any) {
+    } catch (error: any) {
         console.error(error)
         return false;
     }
@@ -435,9 +439,13 @@ export const toggleExchangeStatus = async (id: string) => {
     }
 }
 
-export const getPageData = async ()  => {
+export const getPageData = async () => {
     try {
-        const response = await axios.get(`${backendUrl}api/users/get-page-data`);
+        const response = await axios.get(`${backendUrl}api/users/get-page-data`, {
+            headers: {
+                "Cache-Control": "no-store"
+            }
+        });
         return response.data.data;
     } catch (error: any) {
         toast.error(error.response.data.message || error.message || error);
