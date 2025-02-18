@@ -268,7 +268,7 @@ export function History() {
                             No histories
                         </div>
                     }
-                    <div className="col-sm-12 col-md-7">
+                    <div className="col-sm-12 col-md-7 py-2">
                         {pagination.totalItems > 0 && (
                             <div className="flex items-center justify-end gap-2">
                                 <ReactPagination
