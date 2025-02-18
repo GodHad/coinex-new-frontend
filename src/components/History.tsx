@@ -8,6 +8,8 @@ import { Pagination } from '@/types/pagination';
 import { getHistories, resentHistory } from '@/utils/api';
 import { Webhook } from '@/types/hooks';
 import moment from 'moment';
+import ReactPagination from 'react-responsive-pagination';
+import 'react-responsive-pagination/themes/classic.css';
 
 export function History() {
     const { user } = useContext(UserContext);
@@ -266,6 +268,22 @@ export function History() {
                             No histories
                         </div>
                     }
+                    <div className="col-sm-12 col-md-7">
+                        {pagination.totalItems > 0 && (
+                            <div className="flex items-center justify-end gap-2">
+                                <ReactPagination
+                                    current={pagination.currentPage}
+                                    total={pagination.totalPages}
+                                    onPageChange={(page) => {
+                                        setPagination(prev => ({ ...prev, currentPage: page }));
+                                    }}
+                                    maxWidth={5}
+                                    previousLabel="Previous"
+                                    nextLabel="Next"
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
                 {!isPremium && histories.length > 0 && (
                     <div className="p-6 bg-gradient-to-b from-transparent to-gray-50 text-center border-t border-gray-100">
