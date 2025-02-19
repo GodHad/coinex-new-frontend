@@ -300,7 +300,7 @@ export function Premium() {
                   <p className="text-gray-600 text-sm">{signal.description}</p>
                 </div>
 
-                <div className="grid grid-cols-4 gap-4 text-center mb-4">
+                <div className="grid grid-cols-2 gap-2 text-center mb-4">
                   <div className="flex flex-col justify-between">
                     <p className="text-sm text-gray-500">Win Rate</p>
                     <p className={`font-bold ${signal.winRate && signal.winRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>{signal.winRate?.toFixed(2) || 0}%</p>
