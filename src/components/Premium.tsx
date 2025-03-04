@@ -35,7 +35,7 @@ export function Premium() {
   const [_signal, setSignal] = useState<AdminHook | null>(null);
   const [webhook, setWebhook] = useState<Webhook>({
     url: '',
-    name: '30m ' + _signal?.pair,
+    name: '',
     coinExApiKey: '',
     coinExApiSecret: '',
     tradeDirection: 'BOTH',
@@ -323,7 +323,7 @@ export function Premium() {
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-yellow-600" />
                     <span className="text-sm font-medium">Recommended Leverage:</span>
-                    <span className="text-sm text-gray-600">10x</span>
+                    <span className="text-sm text-gray-600">{signal.recommendedLeverage}</span>
                   </div>
                   {/* {signal.timeframe === '30m' && (
                     <p className="text-xs text-gray-500">
