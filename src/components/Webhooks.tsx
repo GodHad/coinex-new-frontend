@@ -1,7 +1,9 @@
 'use client';
 import React, { useContext, useEffect, useState } from 'react';
-import { Lock, Copy, Check, Play, Pause, Trash2, ChevronDown, ChevronRight, Pencil, Clock, AlertTriangle, Activity, ArrowRight, Crown } from 'lucide-react';
+import { Lock, Copy, Check, Play, Pause, Trash2, ChevronDown, ChevronRight, Pencil, Clock, AlertTriangle, Activity, ArrowRight, Crown, Plus } from 'lucide-react';
 import { Tooltip } from '@/components/Tooltip';
+import { EmptyState } from './common/EmptyState';
+import { Button } from './common/Button';
 import { Webhook } from '@/types/hooks';
 import UserContext from '@/contexts/UserContext';
 import { deleteHook, getHooks, insertHook, updateHook } from '@/utils/api';
@@ -9,6 +11,7 @@ import { toast } from 'react-toastify';
 import moment from 'moment';
 import APILogs from './ApiLogs';
 import Link from 'next/link';
+import { Card } from './common/Card';
 
 const directions = [
     { content: 'Long Only', value: 'LONG_ONLY' },
@@ -18,6 +21,7 @@ const directions = [
 
 export function Webhooks() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [showNewForm, setShowNewForm] = useState(false);
     const [copied, setCopied] = useState(false);
     const [expandedWebhookId, setExpandedWebhookId] = useState<string | null>(null);
     const [editingWebhook, setEditingWebhook] = useState<Webhook | null>(null);
@@ -69,6 +73,7 @@ export function Webhooks() {
                 tradeDirection: 'BOTH',
                 status: 0,
             });
+            setShowNewForm(false);
         }
     };
 
@@ -221,26 +226,25 @@ export function Webhooks() {
     };
 
     const renderUpgradePrompt = () => (
-        <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Crown className="w-8 h-8 text-yellow-600" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Upgrade Your Plan</h3>
-            <p className="text-gray-600 mb-6">
-                {user?.userMode === 'free'
+        <EmptyState
+            title="Upgrade Your Plan"
+            description={
+                user?.userMode === 'free' 
                     ? 'Upgrade to Standard for up to 20 webhooks and 7-day API log retention'
-                    : 'Upgrade to Premium for up to 100 webhooks and 30-day API log retention'}
-            </p>
-            <Link
-                href="/subscription"
-                className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-lg hover:from-yellow-500 hover:to-yellow-700 transition-all shadow-md"
-            >
-                <Crown className="w-4 h-4" />
-                Upgrade Now
-            </Link>
-        </div>
-    );
-
+                    : 'Upgrade to Premium for up to 100 webhooks and 30-day API log retention'
+            }
+            icon={<Crown className="w-8 h-8 text-yellow-600" />}
+            action={
+                <Button 
+                    variant="premium" 
+                    icon={<Crown className="w-4 h-4" />}
+                    onClick={() => window.location.href = '/subscription'}
+                >
+                    Upgrade Now
+                </Button>
+            }
+        />
+      );
     const isSubscribed = !!(user?.subscribed === 1 && user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now());
 
     return (
@@ -306,123 +310,136 @@ export function Webhooks() {
                 {activeTab === 'webhooks' ? (
                     <div className="bg-white rounded-lg shadow p-6">
                         <div className="space-y-4">
-                            <div>
-                                <div className="flex items-center mb-2">
-                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                                        Webhook Name
-                                    </label>
-                                    <Tooltip content="Give your webhook a descriptive name to easily identify it later">
-                                    </Tooltip>
-                                </div>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    value={webhook.name}
-                                    onChange={handleInputChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
-                                    placeholder="Enter a name for your webhook"
-                                />
-                            </div>
-                            {!isSubscribed &&
-                                < div >
-                                    <div className="flex items-center mb-2">
-                                        <label htmlFor="url" className="block text-sm font-medium text-gray-700">
-                                            Webhook URL
-                                        </label>
-                                        <Tooltip content="Give your webhook a descriptive name to easily identify it later">
-                                        </Tooltip>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        id="url"
-                                        name="url"
-                                        value={webhook.url}
-                                        onChange={handleInputChange}
-                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
-                                        placeholder="Enter a name for your webhook"
-                                    />
-                                </div>
-                            }
-                            <div>
-                                <div className="flex items-center mb-2">
-                                    <label htmlFor="coinExApiKey" className="block text-sm font-medium text-gray-700">
-                                        API ID
-                                    </label>
-                                    <Tooltip content="Your exchange API key for automated trading. You can find this in your exchange settings.">
-                                    </Tooltip>
-                                </div>
-                                <input
-                                    type="text"
-                                    id="coinExApiKey"
-                                    name="coinExApiKey"
-                                    value={webhook.coinExApiKey}
-                                    onChange={handleInputChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
-                                    placeholder="Enter your API ID"
-                                />
-                            </div>
-                            <div>
-                                <div className="flex items-center mb-2">
-                                    <label htmlFor="coinExApiSecret" className="block text-sm font-medium text-gray-700">
-                                        API Secret Key
-                                    </label>
-                                    <Tooltip content="Your exchange API secret. Keep this secure and never share it with anyone.">
-                                    </Tooltip>
-                                </div>
-                                <input
-                                    type="password"
-                                    id="coinExApiSecret"
-                                    name="coinExApiSecret"
-                                    value={webhook.coinExApiSecret}
-                                    onChange={handleInputChange}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
-                                    placeholder="Enter your API Secret Key"
-                                />
-                            </div>
-                            <div className="relative">
-                                <div className="flex items-center mb-2">
-                                    <label htmlFor="direction" className="block text-sm font-medium text-gray-700">
-                                        Trading Direction
-                                    </label>
-                                    <Tooltip content="Choose whether this webhook should execute long trades, short trades, or both.">
-                                    </Tooltip>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                    className="w-full flex items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-4 py-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            {webhooks.length < getWebhookLimit() && (
+                                <Button 
+                                    variant="primary" 
+                                    fullWidth 
+                                    icon={<Plus className="w-4 h-4" />}
+                                    onClick={() => setShowNewForm(true)}
                                 >
-                                    <span>{directions.find(option => option.value === webhook.tradeDirection)?.content || ''}</span>
-                                    <ChevronDown className={`w-5 h-5 transition-transform ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
-                                </button>
-                                {isDropdownOpen && (
-                                    <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg">
-                                        <div className="py-1">
-                                            {directions.map((option) => (
-                                                <button
-                                                    key={option.value}
-                                                    onClick={() => {
-                                                        setWebhook((prev) => ({ ...prev, tradeDirection: option.value }));
-                                                        setIsDropdownOpen(false);
-                                                    }}
-                                                    className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                                                >
-                                                    {option.content}
-                                                </button>
-                                            ))}
+                                    Add New Webhook
+                                </Button>
+                            )}
+                            {showNewForm && (
+                                <div className='space-y-4'>
+                                    <div>
+                                        <div className="flex items-center mb-2">
+                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                                                Webhook Name
+                                            </label>
+                                            <Tooltip content="Give your webhook a descriptive name to easily identify it later">
+                                            </Tooltip>
                                         </div>
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            value={webhook.name}
+                                            onChange={handleInputChange}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
+                                            placeholder="Enter a name for your webhook"
+                                        />
                                     </div>
-                                )}
-                            </div>
-                            <button
-                                onClick={generateWebhook}
-                                disabled={!webhook.name || !webhook.coinExApiKey || !webhook.coinExApiSecret || (!isSubscribed && !webhook.url) || !webhook.tradeDirection}
-                                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
-                            >
-                                Generate Webhook
-                            </button>
-
+                                    {!isSubscribed && (
+                                        <div>
+                                            <div className="flex items-center mb-2">
+                                                <label htmlFor="url" className="block text-sm font-medium text-gray-700">
+                                                    Webhook URL
+                                                </label>
+                                                <Tooltip content="Give your webhook a descriptive name to easily identify it later">
+                                                </Tooltip>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                id="url"
+                                                name="url"
+                                                value={webhook.url}
+                                                onChange={handleInputChange}
+                                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
+                                                placeholder="Enter a name for your webhook"
+                                            />
+                                        </div>
+                                    )}
+                                    <div>
+                                        <div className="flex items-center mb-2">
+                                            <label htmlFor="coinExApiKey" className="block text-sm font-medium text-gray-700">
+                                                API ID
+                                            </label>
+                                            <Tooltip content="Your exchange API key for automated trading. You can find this in your exchange settings.">
+                                            </Tooltip>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            id="coinExApiKey"
+                                            name="coinExApiKey"
+                                            value={webhook.coinExApiKey}
+                                            onChange={handleInputChange}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
+                                            placeholder="Enter your API ID"
+                                        />
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center mb-2">
+                                            <label htmlFor="coinExApiSecret" className="block text-sm font-medium text-gray-700">
+                                                API Secret Key
+                                            </label>
+                                            <Tooltip content="Your exchange API secret. Keep this secure and never share it with anyone.">
+                                            </Tooltip>
+                                        </div>
+                                        <input
+                                            type="password"
+                                            id="coinExApiSecret"
+                                            name="coinExApiSecret"
+                                            value={webhook.coinExApiSecret}
+                                            onChange={handleInputChange}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50 p-3"
+                                            placeholder="Enter your API Secret Key"
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <div className="flex items-center mb-2">
+                                            <label htmlFor="direction" className="block text-sm font-medium text-gray-700">
+                                                Trading Direction
+                                            </label>
+                                            <Tooltip content="Choose whether this webhook should execute long trades, short trades, or both.">
+                                            </Tooltip>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                            className="w-full flex items-center justify-between rounded-md border border-gray-300 bg-gray-50 px-4 py-3 text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        >
+                                            <span>{directions.find(option => option.value === webhook.tradeDirection)?.content || ''}</span>
+                                            <ChevronDown className={`w-5 h-5 transition-transform ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
+                                        </button>
+                                        {isDropdownOpen && (
+                                            <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg">
+                                                <div className="py-1">
+                                                    {directions.map((option) => (
+                                                        <button
+                                                            key={option.value}
+                                                            onClick={() => {
+                                                                setWebhook((prev) => ({ ...prev, tradeDirection: option.value }));
+                                                                setIsDropdownOpen(false);
+                                                            }}
+                                                            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                                                        >
+                                                            {option.content}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={generateWebhook}
+                                        disabled={!webhook.name || !webhook.coinExApiKey || !webhook.coinExApiSecret || (!isSubscribed && !webhook.url) || !webhook.tradeDirection}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+                                    >
+                                        Generate Webhook
+                                    </button>
+                                </div>
+                            )}
                             {webhooks.length > 0 && (
                                 <div className="mt-8 space-y-2">
                                     <div className="flex items-center gap-2">
@@ -594,27 +611,26 @@ export function Webhooks() {
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-lg shadow p-6">
+                    <Card>
                         <div className="text-center text-gray-500">
                             <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                             <p>API logs are retained for {getLogRetention()}.</p>
                             {user?.userMode !== 'premium' && (
-                                <div className="mt-4">
-                                    <p className="text-sm text-gray-600 mb-4">
-                                        Upgrade to {user?.userMode === 'free' ? 'Standard' : 'Premium'} for extended log retention and detailed analytics.
-                                    </p>
-                                    <Link
-                                        href="/subscription"
-                                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                    >
-                                        <Crown className="w-4 h-4" />
-                                        Upgrade Now
-                                    </Link>
-                                </div>
+                            <div className="mt-4">
+                                <p className="text-sm text-gray-600 mb-4">
+                                    Upgrade to {user?.userMode === 'free' ? 'Standard' : 'Premium'} for extended log retention and detailed analytics.
+                                </p>
+                                <Button 
+                                    variant="primary" 
+                                    icon={<Crown className="w-4 h-4" />}
+                                    onClick={() => window.location.href = '/subscription'}
+                                >
+                                    Upgrade Now
+                                </Button>
+                            </div>
                             )}
-                            <APILogs userMode={user?.userMode} />
                         </div>
-                    </div>
+                    </Card>
                 )}
             </div>
         </div >

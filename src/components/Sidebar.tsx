@@ -46,7 +46,7 @@ export function Sidebar({ currentPath, socialLinks, sidebarTitle, onLogout }: Si
         { title: 'Premium Signals', icon: <Crown className="w-5 h-5" />, path: '/premium' },
         { title: 'Trading Tools', icon: <Wrench className="w-5 h-5" />, path: '/tools' },
         { title: 'History', icon: <History className="w-5 h-5" />, path: '/history' },
-        { title: 'AI Assistant', icon: <Bot className="w-5 h-5" />, path: '/ai-assistant' },
+        { title: 'AI Assistant', icon: <Bot className="w-5 h-5" />, path: '/ai-assistant', isPremium: true },
         {
             title: 'Getting Started',
             icon: <BookOpen className="w-5 h-5" />,

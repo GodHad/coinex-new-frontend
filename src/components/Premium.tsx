@@ -391,7 +391,7 @@ export function Premium() {
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="w-4 h-4 text-yellow-600" />
                     <span className="text-sm font-medium">Recommended Leverage:</span>
-                    <span className="text-sm text-gray-600">10x</span>
+                    <span className="text-sm text-gray-600">{signal.recommendedLeverage}</span>
                   </div>
                   {/* {signal.timeframe === '30m' && (
                     <p className="text-xs text-gray-500">
@@ -750,7 +750,7 @@ export function Premium() {
     return (
       <div className="p-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold flex items-center gap-2">
               Premium Signals
               <Crown className="w-6 h-6 text-yellow-500" />
@@ -817,11 +817,13 @@ export function Premium() {
   return (
     <div className="p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-2 mb-4">
-          <h1 className="text-4xl font-bold">Premium Trading Signals</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            Premium Signals
+            <Crown className="w-6 h-6 text-yellow-500" />
+          </h1>
           <Tooltip content="Configure and activate professional-grade trading signals with advanced market analysis." />
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {signals.map((signal) => (
             <div

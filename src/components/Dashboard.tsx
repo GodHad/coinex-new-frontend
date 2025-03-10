@@ -1,6 +1,6 @@
 'use client';
 import React, { useContext, useEffect, useState } from 'react';
-import { ArrowUpRight, ArrowDownRight, Play, Pause, ExternalLink, AlertTriangle, TrendingUp, Crown, Clock, BarChart2, Lock, ArrowLeftRight, TrendingDown, ChevronDown, Wallet, CreditCard, DollarSign, RefreshCw, Zap } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Play, Pause, ExternalLink, AlertTriangle, TrendingUp, Crown, Clock, BarChart2, Lock, ArrowLeftRight, TrendingDown, ChevronDown, Wallet, CreditCard, DollarSign, RefreshCw, Zap, Users } from 'lucide-react';
 import { Tooltip } from '../components/Tooltip';
 import UserContext from '@/contexts/UserContext';
 import { Webhook } from '@/types/hooks';
@@ -384,6 +384,7 @@ export function Dashboard() {
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <button
+                                    // onClick={() => togglePosition(position.id)}
                                     className={`p-2 rounded-full ${position.status === 0
                                         ? 'bg-green-100 text-green-600 hover:bg-green-200'
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -395,9 +396,10 @@ export function Dashboard() {
                                     <div className="flex items-center gap-2">
                                         <span className="font-medium">{position.name}</span>
                                         {position.isSubscribed && <Crown className="w-4 h-4 text-yellow-500" />}
+                                        {!position.isSubscribed && <Users className="w-4 h-4 text-blue-500" />}
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-gray-500">
-                                        {/* <span>{position.ti}</span>
+                                        {/* <span>{position.pair}</span>
                                         <span>•</span> */}
                                         <Clock className="w-3 h-3" />
                                         <span>Opened {moment(position.createdAt).format('YYYY-MM-DD hh:mm:ss')}</span>
@@ -414,12 +416,12 @@ export function Dashboard() {
                                             {position.pnl >= 0 ? '+' : ''}{position.pnlPercent.toFixed(2)}%
                                         </div>
                                     </div>
-                                    <a
-                                        href="#"
+                                    <button
+                                        // onClick={() => setSelectedPositionId(position._id)}
                                         className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
                                     >
                                         <ExternalLink className="w-4 h-4" />
-                                    </a>
+                                    </button>
                                 </div>
                             }
                         </div>
@@ -562,6 +564,7 @@ export function Dashboard() {
                 </div>
             </div>
 
+            {/* API Accounts Section */}
             <div className="bg-white rounded-xl shadow-md p-6">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
@@ -634,7 +637,8 @@ export function Dashboard() {
                     {apiAccounts.map(account => renderApiAccountCard(account))}
                 </div>
             </div>
-
+            
+            {/* Performance Overview Chart */}
             <div className="bg-white rounded-xl shadow-md p-6">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
