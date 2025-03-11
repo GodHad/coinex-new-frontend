@@ -58,8 +58,10 @@ export function Premium() {
   const saveApiConfig = async () => {
     const result = !webhook._id ? await insertHook({ ...webhook, adminHook: _signal?._id }, true) : await updateHook({ ...webhook, adminHook: _signal?._id }, true);
     if (result) {
+      console.log(result, signals);
       setSignals(prev => prev.map(s => s._id === _signal?._id ? { ...s, hook: result.hook } : s));
       toast.success(result.message);
+      setSignal(null);
     }
   };
 
