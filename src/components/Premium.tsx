@@ -168,7 +168,7 @@ export function Premium() {
                   value={webhook.amount || ''}
                   onChange={(e) => setWebhook(prev => ({
                     ...prev,
-                    amount: Number(e.target.value)
+                    amount: e.target.value
                   }))}
                   className="pl-10 pr-10 py-2 w-full rounded-lg border border-blue-500 focus:border-2 focus:border-blue-700 focus:outline-none transition-colors"
                   placeholder="Enter your amount"

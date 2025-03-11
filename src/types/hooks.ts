@@ -12,7 +12,7 @@ export type Webhook = {
     tradeDirection: string;
     isSubscribed?: boolean;
     adminHook?: string | AdminHook;
-    amount?: number;
+    amount?: number | string;
     leverage?: string;
     entryPrice?: string;
     stopLossPrice?: string;
