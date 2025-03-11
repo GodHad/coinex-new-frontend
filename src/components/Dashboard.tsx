@@ -5,7 +5,7 @@ import { Tooltip } from '../components/Tooltip';
 import UserContext from '@/contexts/UserContext';
 import { Webhook } from '@/types/hooks';
 import moment from 'moment';
-import { getDashboardOverview, getHooks } from '@/utils/api';
+import { get30DaysChartData, getDashboardOverview, getHooks } from '@/utils/api';
 import { toast } from 'react-toastify';
 import { ApiAccount } from '@/types/apiAccount';
 import { Bar } from 'react-chartjs-2';
@@ -34,99 +34,136 @@ export function Dashboard() {
         };
     };
 
-    const [apiAccounts, setApiAccounts] = useState<ApiAccount[]>([
-        {
-            id: 'api1',
-            name: 'Binance Main',
-            exchange: 'Binance',
-            balance: {
-                total: 5000,
-                available: 3500,
-                inPosition: 1500
-            },
-            pnl: {
-                daily: 231.78,
-                weekly: 542.35,
-                monthly: 1245.67,
-                allTime: 3567.89
-            },
-            positions: [],
-            lastUpdated: '2024-03-14 15:45:00'
-        },
-        {
-            id: 'api2',
-            name: 'CoinEx Trading',
-            exchange: 'CoinEx',
-            balance: {
-                total: 8000,
-                available: 5700,
-                inPosition: 2300
-            },
-            pnl: {
-                daily: 444.55,
-                weekly: -120.35,
-                monthly: 2345.67,
-                allTime: 5678.90
-            },
-            positions: [],
-            lastUpdated: '2024-03-14 15:45:00'
-        },
-        {
-            id: 'api3',
-            name: 'Bybit Futures',
-            exchange: 'Bybit',
-            balance: {
-                total: 3000,
-                available: 1800,
-                inPosition: 1200
-            },
-            pnl: {
-                daily: -75.45,
-                weekly: 320.78,
-                monthly: 890.12,
-                allTime: 1234.56
-            },
-            positions: [],
-            lastUpdated: '2024-03-14 15:45:00'
-        }
-    ]);
-
-    // useEffect(() => {
-    //     const updatedAccounts = apiAccounts.map(account => {
-    //       const accountPositions = positions.filter(pos => pos._id === account.id);
-    //       return {
-    //         ...account,
-    //         positions: accountPositions
-    //       };
-    //     });
-    //     setApiAccounts(updatedAccounts);
-    //   }, [positions]);
-
-    const standardStats = getSourceStats(false);
-    const premiumStats = getSourceStats(true);
-
+    
     const [totalStats, setTotalStats] = useState<{
         totalPnl: number;
         activePositions: number;
         totalPositions: number;
         totalRisk: number;
+        pnlStats: {
+            daily: number;
+            weekly: number;
+            monthly: number;
+            allTime: number;
+        };
+        todayPnl: number;
+        standard: {
+            totalPositions: number;
+            activePositions: number;
+            totalPnl: number;
+            totalRisk: number;
+        };
+        premium: {
+            totalPositions: number;
+            activePositions: number;
+            totalPnl: number;
+            totalRisk: number;
+        };
+        lastUpdated: Date;
     }>({
         totalPnl: 0,
         activePositions: 0,
         totalPositions: 0,
-        totalRisk: 0
+        totalRisk: 0,
+        pnlStats: {
+            daily: 0,
+            weekly: 0,
+            monthly: 0,
+            allTime: 0,
+        },
+        standard: {
+            totalPositions: 0,
+            activePositions: 0,
+            totalPnl: 0,
+            totalRisk: 0,
+        },
+        premium: {
+            totalPositions: 0,
+            activePositions: 0,
+            totalPnl: 0,
+            totalRisk: 0,
+        },
+        todayPnl: 0,
+        lastUpdated: new Date()
+    });
+
+    const [apiAccounts, setApiAccounts] = useState<ApiAccount[]>([
+        {
+            id: 'api1',
+            name: 'CoinEx Subaccounts',
+            exchange: 'CoinEx',
+            balance: user?.balance || {
+                total: 0,
+                available: 0,
+                inPosition: 0
+            },
+            pnl: totalStats.pnlStats,
+            positions: [],
+            lastUpdated: '2024-03-14 15:45:00'
+        },
+        // {
+        //     id: 'api2',
+        //     name: 'CoinEx Trading',
+        //     exchange: 'CoinEx',
+        //     balance: {
+        //         total: 8000,
+        //         available: 5700,
+        //         inPosition: 2300
+        //     },
+        //     pnl: {
+        //         daily: 444.55,
+        //         weekly: -120.35,
+        //         monthly: 2345.67,
+        //         allTime: 5678.90
+        //     },
+        //     positions: [],
+        //     lastUpdated: '2024-03-14 15:45:00'
+        // },
+        // {
+        //     id: 'api3',
+        //     name: 'Bybit Futures',
+        //     exchange: 'Bybit',
+        //     balance: {
+        //         total: 3000,
+        //         available: 1800,
+        //         inPosition: 1200
+        //     },
+        //     pnl: {
+        //         daily: -75.45,
+        //         weekly: 320.78,
+        //         monthly: 890.12,
+        //         allTime: 1234.56
+        //     },
+        //     positions: [],
+        //     lastUpdated: '2024-03-14 15:45:00'
+        // }
+    ]);
+
+    useEffect(() => {
+        const updatedAccounts = apiAccounts.map(account => {
+          return {
+            ...account,
+            pnl: totalStats.pnlStats,
+          };
+        });
+        setApiAccounts(updatedAccounts);
+      }, [totalStats]);
+
+    const standardStats = getSourceStats(false);
+    const premiumStats = getSourceStats(true);
+    
+    const [pnlData, setPnlData] = useState<{
+        standard: Record<string, number>;
+        premium: Record<string, number>;
+    }>({
+        standard: {},
+        premium: {},
     });
 
     const handleGetOverview = async () => {
         const res = await getDashboardOverview();
         if (res) setTotalStats(res);
-        console.log(res)
     }
-
-    useEffect(() => {
-        handleGetOverview();
-        handleGetHooks(jwtToken);
-    }, [jwtToken]);
 
     const handleGetHooks = async (jwtToken: string) => {
         try {
@@ -139,6 +176,18 @@ export function Dashboard() {
 
     }
 
+    const handleGetPnlData = async () => {
+        const res = await get30DaysChartData();
+        if (res) setPnlData(res);
+    }
+
+    useEffect(() => {
+        handleGetOverview();
+        handleGetHooks(jwtToken);
+        handleGetPnlData();
+    }, [jwtToken]);
+
+
     const calculateRiskLevel = (totalRisk: number) => {
         if (totalRisk > 10000) return 'High';
         if (totalRisk > 5000) return 'Moderate';
@@ -149,38 +198,35 @@ export function Dashboard() {
         let days = 7;
         if (timeRange === '24h') days = 1;
         if (timeRange === '30d') days = 30;
-
-        const labels = Array.from({ length: days }, () => {
-            return moment().subtract('day').format('MMM d');
-        });
-
+    
+        const labels = Array.from({ length: days }, (_, i) => {
+            return moment().subtract(i, 'days').format('MMM D');
+        }).reverse();
+    
+        const standardData = labels.map(date => pnlData?.standard[date] || 0);
+        const premiumData = labels.map(date => pnlData?.premium[date] || 0);
+    
         return {
             labels,
             datasets: [
                 {
                     label: 'Standard Signals',
-                    data: Array.from({ length: days }, () => Math.random() * 200 - 50),
+                    data: standardData,
                     backgroundColor: 'rgba(59, 130, 246, 0.5)',
                     borderColor: 'rgb(59, 130, 246)',
                     borderWidth: 1,
                 },
                 {
                     label: 'Premium Signals',
-                    data: Array.from({ length: days }, () => Math.random() * 300 - 50),
+                    data: premiumData,
                     backgroundColor: 'rgba(234, 179, 8, 0.5)',
                     borderColor: 'rgb(234, 179, 8)',
-                    borderWidth: 1,
-                },
-                {
-                    label: 'P2P Trading',
-                    data: Array.from({ length: days }, () => Math.random() * 150 - 30),
-                    backgroundColor: 'rgba(16, 185, 129, 0.5)',
-                    borderColor: 'rgb(16, 185, 129)',
                     borderWidth: 1,
                 },
             ],
         };
     };
+    
 
     const renderApiAccountCard = (account: ApiAccount) => {
         const isExpanded = expandedAccountId === account.id;
@@ -205,8 +251,8 @@ export function Dashboard() {
                     <div className="flex items-center gap-4">
                         <div className="text-right">
                             <p className="font-medium">${account.balance.total.toLocaleString()}</p>
-                            <p className={`text-sm ${account.pnl.daily >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {account.pnl.daily >= 0 ? '+' : ''}{account.pnl.daily.toFixed(2)} today
+                            <p className={`text-sm ${totalStats.todayPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                ${totalStats.todayPnl >= 0 ? '+' : ''}{totalStats.todayPnl.toFixed(2)} today
                             </p>
                         </div>
                         <button
@@ -250,7 +296,7 @@ export function Dashboard() {
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-sm text-gray-500">Daily</span>
                                             <span className={`text-sm ${account.pnl.daily >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {account.pnl.daily >= 0 ? '+' : ''}{account.pnl.daily.toFixed(2)}
+                                               ${account.pnl.daily >= 0 ? '+' : ''}{account.pnl.daily.toFixed(2)}
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-1.5">
@@ -264,7 +310,7 @@ export function Dashboard() {
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-sm text-gray-500">Weekly</span>
                                             <span className={`text-sm ${account.pnl.weekly >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {account.pnl.weekly >= 0 ? '+' : ''}{account.pnl.weekly.toFixed(2)}
+                                                ${account.pnl.weekly >= 0 ? '+' : ''}{account.pnl.weekly.toFixed(2)}
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-1.5">
@@ -278,7 +324,7 @@ export function Dashboard() {
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-sm text-gray-500">Monthly</span>
                                             <span className={`text-sm ${account.pnl.monthly >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {account.pnl.monthly >= 0 ? '+' : ''}{account.pnl.monthly.toFixed(2)}
+                                                ${account.pnl.monthly >= 0 ? '+' : ''}{account.pnl.monthly.toFixed(2)}
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-1.5">
@@ -333,7 +379,7 @@ export function Dashboard() {
                         )}
 
                         <div className="mt-4 text-xs text-gray-500 text-right">
-                            Last updated: {account.lastUpdated}
+                            Last updated: {moment(totalStats.lastUpdated).format('YYYY-MM-DD hh:mm:ss')}
                         </div>
                     </div>
                 )}
@@ -594,7 +640,7 @@ export function Dashboard() {
                             </div>
                         </div>
                         <p className="text-3xl font-bold">
-                            ${apiAccounts.reduce((sum, account) => sum + account.balance.total, 0).toFixed(2)}
+                            ${user?.balance.total.toFixed(2)}
                         </p>
                     </div>
 
@@ -608,12 +654,12 @@ export function Dashboard() {
                                 <p className="text-sm text-gray-500">All accounts</p>
                             </div>
                         </div>
-                        <p className={`text-3xl font-bold ${apiAccounts.reduce((sum, account) => sum + account.pnl.daily, 0) >= 0
+                        <p className={`text-3xl font-bold ${totalStats.pnlStats.daily >= 0
                             ? 'text-green-600'
                             : 'text-red-600'
                             }`}>
-                            {apiAccounts.reduce((sum, account) => sum + account.pnl.daily, 0) >= 0 ? '+' : ''}
-                            ${apiAccounts.reduce((sum, account) => sum + account.pnl.daily, 0).toFixed(2)}
+                            {totalStats.pnlStats.daily > 0 ? '+' : ''}
+                            ${totalStats.pnlStats.daily.toFixed(2)}
                         </p>
                     </div>
 
@@ -628,7 +674,7 @@ export function Dashboard() {
                             </div>
                         </div>
                         <p className="text-3xl font-bold">
-                            {apiAccounts.length}
+                            {1}
                         </p>
                     </div>
                 </div>
@@ -647,14 +693,14 @@ export function Dashboard() {
                         </Tooltip>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button
+                        {/* <button
                             onClick={refreshPositions}
                             className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg flex items-center gap-1"
                             disabled={isRefreshing}
                         >
                             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                             <span className="text-sm">Refresh</span>
-                        </button>
+                        </button> */}
                         <div className="flex border rounded-lg overflow-hidden">
                             <button
                                 onClick={() => setTimeRange('24h')}
@@ -745,17 +791,17 @@ export function Dashboard() {
                     <div className="space-y-3">
                         <div className="flex justify-between">
                             <span className="text-gray-600">Total PnL:</span>
-                            <span className={`font-medium ${standardStats.totalPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {standardStats.totalPnl >= 0 ? '+' : ''}{standardStats.totalPnl.toFixed(2)} USDT
+                            <span className={`font-medium ${totalStats.standard.totalPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {totalStats.standard.totalPnl >= 0 ? '+' : ''}{totalStats.standard.totalPnl.toFixed(2)} USDT
                             </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">Active Positions:</span>
-                            <span className="font-medium">{standardStats.activePositions} / {standardStats.totalPositions}</span>
+                            <span className="font-medium">{totalStats.standard.activePositions} / {totalStats.standard.totalPositions}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">Total Risk:</span>
-                            <span className="font-medium">${standardStats.totalRisk.toLocaleString()}</span>
+                            <span className="font-medium">${totalStats.standard.totalRisk.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
@@ -773,17 +819,17 @@ export function Dashboard() {
                     <div className="space-y-3">
                         <div className="flex justify-between">
                             <span className="text-gray-600">Total PnL:</span>
-                            <span className={`font-medium ${premiumStats.totalPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {premiumStats.totalPnl >= 0 ? '+' : ''}{premiumStats.totalPnl.toFixed(2)} USDT
+                            <span className={`font-medium ${totalStats.premium.totalPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {totalStats.premium.totalPnl >= 0 ? '+' : ''}{totalStats.premium.totalPnl.toFixed(2)} USDT
                             </span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">Active Positions:</span>
-                            <span className="font-medium">{premiumStats.activePositions} / {premiumStats.totalPositions}</span>
+                            <span className="font-medium">{totalStats.premium.activePositions} / {totalStats.premium.totalPositions}</span>
                         </div>
                         <div className="flex justify-between">
                             <span className="text-gray-600">Total Risk:</span>
-                            <span className="font-medium">${premiumStats.totalRisk.toLocaleString()}</span>
+                            <span className="font-medium">${totalStats.premium.totalRisk.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>

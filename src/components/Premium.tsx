@@ -93,7 +93,8 @@ export function Premium() {
   //   }
   // };
 
-  const saveApiConfig = (pair: string) => {
+  const saveApiConfig = (pair?: string) => {
+    if (!pair) return;
     if (apiKeys[pair]?.key && apiKeys[pair]?.secret) {
       setPendingApiConfig({
         pair,
@@ -296,7 +297,7 @@ export function Premium() {
                 Cancel
               </button>
               <button
-                onClick={() => saveApiConfig()}
+                onClick={() => saveApiConfig(signal._id)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Save Configuration

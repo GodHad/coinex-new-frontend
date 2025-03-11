@@ -13,6 +13,11 @@ export type User = {
     subscribeEndDate?: Date;
     status?: number;
     inviteCode?: string;
+    balance: {
+        total: number;
+        available: number;
+        inPosition: number;
+    };
     createdAt?: Date;
     updatedAt?: Date;
 }

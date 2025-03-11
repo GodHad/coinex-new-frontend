@@ -452,3 +452,17 @@ export const getPageData = async () => {
         return false;
     }
 }
+
+export const get30DaysChartData = async () => {
+    try {
+        const response = await axios.get(`${backendUrl}api/users/get-pnl-last-30-days`, {
+            headers: {
+                Authorization: `Bearer ${getCookie('jwtToken')}`
+            }
+        });
+        return response.data;
+    } catch (error: any) {
+        toast.error(error.response.data.message || error.message || error);
+        return false;
+    }
+}
