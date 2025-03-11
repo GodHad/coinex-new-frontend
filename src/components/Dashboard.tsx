@@ -45,7 +45,6 @@ export function Dashboard() {
     const handleGetOverview = async () => {
         const res = await getDashboardOverview();
         if (res) setTotalStats(res);
-        console.log(res)
     }
 
     useEffect(() => {

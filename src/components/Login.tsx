@@ -142,7 +142,6 @@ export function Login({ homepageData }: { homepageData: Partial<AdminData> | nul
   };
 
   useEffect(() => {
-    console.log(homepageData)
     if (homepageData?.siteMaintainanceMode) toast.error('Site is currently in maintenance. Please try again later')
   }, [homepageData])
 
