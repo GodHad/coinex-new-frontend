@@ -7,13 +7,13 @@ export type User = {
     lastName: string;
     email: string;
     password: string;
-    userMode: string;
+    userMode?: string;
     isAdmin?: boolean;
     subscribed?: number;
     subscribeEndDate?: Date;
     status?: number;
     inviteCode?: string;
-    balance: {
+    balance?: {
         total: number;
         available: number;
         inPosition: number;

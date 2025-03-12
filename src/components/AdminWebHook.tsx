@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Image as ImageIcon, Check, X, ChevronDown, Pencil, Save, Trash2, Copy } from 'lucide-react';
+import { Plus, Trash2, Activity, Clock, Pencil, Save, ImageIcon, Check, Copy, AlertTriangle } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { AdminHook } from '@/types/admin-hook';
-import Image from 'next/image';
-import { getAdminHooks, insertAdminHook, updateAdminHook, deleteAdminHook } from '@/utils/api';
 import { toast } from 'react-toastify';
+import { deleteAdminHook, getAdminHooks, insertAdminHook, updateAdminHook } from '@/utils/api';
+import APILogs from './ApiLogs';
+import moment from 'moment';
 
 const defaultFormData: Partial<AdminHook> = {
     pair: 'BTC/USDT',
@@ -18,7 +19,8 @@ const defaultFormData: Partial<AdminHook> = {
 
 export default function AdminWebHook() {
     const [signals, setSignals] = useState<AdminHook[]>([]);
-    const [copied, setCopied] = useState(false);
+    const [copied, setCopied] = useState<string>('');
+    const [showHistory, setShowHistory] = useState<string | null>(null);
 
     const [editingSignal, setEditingSignal] = useState<AdminHook | null>(null);
     const [showNewForm, setShowNewForm] = useState(false);
@@ -92,6 +94,7 @@ export default function AdminWebHook() {
             setSignals(signals.filter(w => w._id !== id));
             if (expandedSignalId === id) setExpandedSignalId(null);
             if (editingSignal?._id === id) setEditingSignal(null);
+            if (showHistory === id) setShowHistory(null);
             toast.success(result.message);
         }
     };
@@ -131,8 +134,8 @@ export default function AdminWebHook() {
 
     const copyToClipboard = async (url: string) => {
         await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        setCopied(url);
+        setTimeout(() => setCopied(''), 2000);
     };
 
     const renderSignalForm = () => (
@@ -240,15 +243,112 @@ export default function AdminWebHook() {
         </div>
     );
 
+    const getStatusIcon = (status: number) => {
+        switch (status) {
+            case 0:
+                return <Check className="w-4 h-4 text-green-600" />;
+            default:
+                return <AlertTriangle className="w-4 h-4 text-red-600" />;
+            // case 'warning':
+            //     return <AlertTriangle className="w-4 h-4 text-yellow-600" />;
+        }
+    };
+
+    const getStatusStyle = (status: number) => {
+        switch (status) {
+            case 0:
+                return 'bg-green-100 text-green-800';
+            default:
+                return 'bg-red-100 text-red-800';
+            // case 'warning':
+            //     return 'bg-yellow-100 text-yellow-800';
+        }
+    };
+
+    const renderHistory = (webhook: AdminHook) => {
+        if (!webhook.histories?.length) {
+            return (
+                <div className="text-center py-4 text-gray-500">
+                    No trading history available
+                </div>
+            );
+        }
+
+        return (
+            <div className="space-y-2">
+                {webhook.histories.map(entry => (
+                    <div key={entry._id} className="p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(entry.data?.code || 0)}`}>
+                                    {getStatusIcon(entry.data?.code || 0)}
+                                    {entry.data?.code === 0 ? 'Success' : 'Error'}
+                                </span>
+                                <span className="font-medium capitalize">
+                                    {
+                                        !entry.positionState ? entry.action :
+                                            entry.positionState === 'neutral' ? 'Position Closed' :
+                                                entry.positionState === 'short' ? (entry.action === 'buy' ? 'Short Position Closed' : 'Long Position Opened') : (
+                                                    entry.action === 'sell' ? 'Short Position Opened' : 'Long Position Closed'
+                                                )
+                                    }
+                                </span>
+                            </div>
+                            <span className="text-sm text-gray-500">{moment(entry.createdAt).format('YYYY-MM-DD hh:mm:ss')}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">{entry.data?.message}</span>
+                            <span className="text-sm font-medium">{entry.symbol}</span>
+                        </div>
+                        {entry.data?.data && entry.data?.data.realized_pnl !== undefined && (
+                            <div className="mt-2 pt-2 border-t border-gray-200">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-500">Net PnL</span>
+                                    <span className={`font-medium ${entry.data?.data.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        {Number(entry.data?.data.realized_pnl) >= 0 ? '+' : ''}{Number(entry.data?.data.realized_pnl).toFixed(2)} USDT
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+    
+    const [activeTab, setActiveTab] = useState<'webhooks' | 'logs'>('webhooks');
+
     return (
-        <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow">
-                <div className="p-6 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-semibold">Premium Signals</h2>
-                            <Tooltip content="Manage premium trading signals available to subscribers">
-                            </Tooltip>
+        <div className="space-y-4">
+            {/* Header */}
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <h2 className="text-lg font-semibold">Premium Signals</h2>
+                        <Tooltip content="Manage premium trading signals available to subscribers">
+                        </Tooltip>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <button
+                                onClick={() => setActiveTab('webhooks')}
+                                className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-colors ${activeTab === 'webhooks'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }`}
+                            >
+                                Webhooks
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('logs')}
+                                className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 ${activeTab === 'logs'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }`}
+                            >
+                                <Activity className="w-4 h-4" />
+                                <span>API Logs</span>
+                            </button>
                         </div>
                         <button
                             onClick={() => {
@@ -256,111 +356,121 @@ export default function AdminWebHook() {
                                 setFormData(defaultFormData);
                                 setExpandedSignalId(null);
                             }}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
                         >
                             <Plus className="w-4 h-4" />
                             Add New Signal
                         </button>
                     </div>
                 </div>
-
-                {showNewForm && (
-                    <div className="p-6 border-b border-gray-200">
-                        <h3 className="text-lg font-medium mb-4">Create New Signal</h3>
-                        {renderSignalForm()}
-                    </div>
-                )}
-
-                <div className="divide-y divide-gray-100">
-                    {signals.map((signal) => (
-                        <div key={signal._id} className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-4">
-                                    <button
-                                        onClick={() => toggleSignal(signal._id || '')}
-                                        className={`p-2 rounded-full ${signal.enabled
-                                            ? 'bg-green-100 text-green-600 hover:bg-green-200'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {signal.enabled ? <Check className="w-5 h-5" /> : <X className="w-5 h-5" />}
-                                    </button>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="font-medium">{signal.pair}</h3>
-                                            <span className="text-sm text-gray-500">{signal.timeframe}</span>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskBadgeColor(signal.riskLevel)}`}>
-                                                {signal.riskLevel} Risk
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-500 mt-1">{signal.description}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setExpandedSignalId(expandedSignalId === signal._id ? null : signal._id ?? null)}
-                                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
-                                    >
-                                        <ChevronDown className={`w-5 h-5 transition-transform ${expandedSignalId === signal._id ? 'transform rotate-180' : ''
-                                            }`} />
-                                    </button>
-                                    <button
-                                        onClick={() => copyToClipboard(`https://api.nothingparticular.com/api/webhooks/${signal.url}`)}
-                                        className="p-2 text-gray-400 hover:bg-gray-50 rounded-full"
-                                    >
-                                        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            startEditing(signal);
-                                            setShowNewForm(false);
-                                        }}
-                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
-                                    >
-                                        <Pencil className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={() => deleteWebhook(signal._id || '')}
-                                        className="p-2 text-red-600 hover:bg-red-50 rounded-full"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {expandedSignalId === signal._id && (
-                                <div className="mt-4 space-y-4">
-                                    <Image
-  unoptimized
-                                        src={signal.imageUrl}
-                                        alt={signal.pair}
-                                        className="w-full h-48 object-cover rounded-lg"
-                                        width={100}
-                                        height={100}
-                                    />
-
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div className="bg-gray-50 p-3 rounded-lg">
-                                            <p className="text-sm text-gray-500">Win Rate</p>
-                                            <p className={`font-medium ${signal.winRate && signal.winRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>{signal.winRate?.toFixed(2) || 0}%</p>
-                                        </div>
-                                        <div className="bg-gray-50 p-3 rounded-lg">
-                                            <p className="text-sm text-gray-500">Avg. Profit</p>
-                                            <p className={`font-medium ${signal.avgPnl && signal.avgPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>${signal.avgPnl?.toFixed(2) || 0}</p>
-                                        </div>
-                                        <div className="bg-gray-50 p-3 rounded-lg">
-                                            <p className="text-sm text-gray-500">Total Signals</p>
-                                            <p className="font-medium">{signal.signals}</p>
-                                        </div>
-                                    </div>
-
-                                    {editingSignal?._id === signal._id && renderSignalForm()}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
             </div>
+
+            {showNewForm && (
+                <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-medium mb-4">Create New Signal</h3>
+                    {renderSignalForm()}
+                </div>
+            )}
+
+            {/* Content */}
+            {
+                activeTab === 'webhooks' ? 
+                <div className="bg-white rounded-lg shadow">
+                    <div className="p-4 sm:p-6 border-b border-gray-200">
+                        <div className="flex items-center gap-2">
+                            <h3 className="font-medium">Active Signals</h3>
+                            <span className="text-sm text-gray-500">({signals.filter(s => s.enabled).length} signals)</span>
+                        </div>
+                    </div>
+
+                    {/* Signal Cards */}
+                    <div className="divide-y divide-gray-100">
+                        {signals.map((signal) => (
+                            <div key={signal._id} className="p-4 sm:p-6">
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex flex-wrap gap-2 items-start justify-between">
+                                            <div>
+                                                <h4 className="font-medium">{signal.pair}</h4>
+                                                <p className="text-sm text-gray-500 mt-1">{signal.timeframe} Timeframe</p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getRiskBadgeColor(signal.riskLevel)}`}>
+                                                    {signal.riskLevel} Risk
+                                                </span>
+                                                <span className={`px-2 py-1 text-xs font-medium bg-green-100 rounded-full ${signal.enabled ? 'text-green-800' : 'text-red-800'}`}>
+                                                    {signal.enabled ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                                            {signal.description}
+                                        </p>
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                <p className="text-sm text-gray-500">Win Rate</p>
+                                                <p className="font-medium text-green-600">{signal.winRate?.toFixed(2)}%</p>
+                                            </div>
+                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                <p className="text-sm text-gray-500">Avg. Profit</p>
+                                                <p className="font-medium text-green-600">{signal.avgPnl?.toFixed(2)}%</p>
+                                            </div>
+                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                <p className="text-sm text-gray-500">Total Signals</p>
+                                                <p className="font-medium">{signal.signals}</p>
+                                            </div>
+                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                <p className="text-sm text-gray-500">Leverage</p>
+                                                <p className="font-medium">{signal.recommendedLeverage}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex sm:flex-col gap-2 self-end sm:self-start">
+                                        <button 
+                                            className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+                                            onClick={() => setShowHistory((signal && signal._id && showHistory === signal._id) ? null : signal._id || null)}
+                                        >
+                                            <Clock className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={() => copyToClipboard(`https://api.nothingparticular.com/api/webhooks/${signal.url}`)}
+                                            className="p-2 text-gray-400 hover:bg-gray-50 rounded-full"
+                                        >
+                                            {copied === `https://api.nothingparticular.com/api/webhooks/${signal.url}` ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                                        </button>
+                                        <button 
+                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" 
+                                            onClick={() => {
+                                                startEditing(signal);
+                                                setShowNewForm(false);
+                                            }}
+                                        >
+                                            <Pencil className="w-5 h-5" />
+                                        </button>
+                                        <button 
+                                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                            onClick={() => deleteWebhook(signal._id || '')}
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                                {showHistory === signal._id && (
+                                    <div className="border-t border-gray-200 p-3">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="font-medium">Recent Trading History</h4>
+                                        </div>
+                                        {renderHistory(signal)}
+                                    </div>
+                                )}
+                                {editingSignal?._id === signal._id && renderSignalForm()}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                : 
+                <APILogs />
+            }
         </div>
     );
 }

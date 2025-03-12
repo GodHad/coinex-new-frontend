@@ -1,3 +1,4 @@
+import { HistoryType } from "./history";
 import { Webhook } from "./hooks";
 
 export type AdminHook = {
@@ -51,4 +52,5 @@ export type AdminHook = {
         labels: string[];
         values: number[];
     };
+    histories?: HistoryType[];
 };
