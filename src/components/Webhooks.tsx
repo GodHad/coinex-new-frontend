@@ -229,14 +229,14 @@ export function Webhooks() {
         <EmptyState
             title="Upgrade Your Plan"
             description={
-                user?.userMode === 'free' 
+                user?.userMode === 'free'
                     ? 'Upgrade to Standard for up to 20 webhooks and 7-day API log retention'
                     : 'Upgrade to Premium for up to 100 webhooks and 30-day API log retention'
             }
             icon={<Crown className="w-8 h-8 text-yellow-600" />}
             action={
-                <Button 
-                    variant="premium" 
+                <Button
+                    variant="premium"
                     icon={<Crown className="w-4 h-4" />}
                     onClick={() => window.location.href = '/subscription'}
                 >
@@ -244,7 +244,7 @@ export function Webhooks() {
                 </Button>
             }
         />
-      );
+    );
     const isSubscribed = !!(user?.subscribed === 1 && user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now());
 
     return (
@@ -311,9 +311,9 @@ export function Webhooks() {
                     <div className="bg-white rounded-lg shadow p-6">
                         <div className="space-y-4">
                             {webhooks.length < getWebhookLimit() && (
-                                <Button 
-                                    variant="primary" 
-                                    fullWidth 
+                                <Button
+                                    variant="primary"
+                                    fullWidth
                                     icon={<Plus className="w-4 h-4" />}
                                     onClick={() => setShowNewForm(true)}
                                 >
@@ -611,26 +611,29 @@ export function Webhooks() {
                         </div>
                     </div>
                 ) : (
-                    <Card>
-                        <div className="text-center text-gray-500">
-                            <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                            <p>API logs are retained for {getLogRetention()}.</p>
-                            {user?.userMode !== 'premium' && (
-                            <div className="mt-4">
-                                <p className="text-sm text-gray-600 mb-4">
-                                    Upgrade to {user?.userMode === 'free' ? 'Standard' : 'Premium'} for extended log retention and detailed analytics.
-                                </p>
-                                <Button 
-                                    variant="primary" 
-                                    icon={<Crown className="w-4 h-4" />}
-                                    onClick={() => window.location.href = '/subscription'}
-                                >
-                                    Upgrade Now
-                                </Button>
+                    <>
+                        <Card>
+                            <div className="text-center text-gray-500">
+                                <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                <p>API logs are retained for {getLogRetention()}.</p>
+                                {user?.userMode !== 'premium' && (
+                                    <div className="mt-4">
+                                        <p className="text-sm text-gray-600 mb-4">
+                                            Upgrade to {user?.userMode === 'free' ? 'Standard' : 'Premium'} for extended log retention and detailed analytics.
+                                        </p>
+                                        <Button
+                                            variant="primary"
+                                            icon={<Crown className="w-4 h-4" />}
+                                            onClick={() => window.location.href = '/subscription'}
+                                        >
+                                            Upgrade Now
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
-                            )}
-                        </div>
-                    </Card>
+                        </Card>
+                        <APILogs />
+                    </>
                 )}
             </div>
         </div >

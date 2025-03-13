@@ -62,12 +62,6 @@ export default function AdminWebHook() {
 
     };
 
-    const toggleSignal = (id: string) => {
-        setSignals(signals.map(s =>
-            s._id === id ? { ...s, enabled: !s.enabled } : s
-        ));
-    };
-
     const generateWebhook = async () => {
         const result = await insertAdminHook(formData);
         if (result) {

@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useContext, useEffect, useState } from 'react';
-import { Check, X, RefreshCw, Globe, Twitter, Instagram, MessageCircle, MessagesSquare, ExternalLink, Image as ImageIcon, Save, ChevronDown, Settings as SettingsIcon, Key, RotateCcw, Edit2, Star, Bot, AlertTriangle, Trash2 } from 'lucide-react';
-import { Tooltip } from '../../components/Tooltip';
+import { Check, X, Globe, Twitter, Instagram, MessageCircle, MessagesSquare, Image as ImageIcon, Save, ChevronDown, Settings as SettingsIcon, RotateCcw, Edit2, Star, Bot, AlertTriangle, Trash2 } from 'lucide-react';
 import { ExchangePartners } from './ExchangePartners';
 import { updateAdminData, getAdminData } from '@/utils/api';
 import AdminDataContext from '@/contexts/AdminContext';
 import { toast } from 'react-toastify';
-import { clearErrorLogs, fetchAvailableModels, getModelMetadataByName, getServiceConfig, getServiceErrorLogs, resetConfig, updateConfig, updateModelMetadata } from '@/utils/aiServices';
+import { clearErrorLogs, fetchAvailableModels, getServiceConfig, getServiceErrorLogs, resetConfig } from '@/utils/aiServices';
 import { ModelInfo } from '@/types/modelInfo';
 
 export function Settings() {
@@ -109,17 +108,17 @@ export function Settings() {
         </button>
     );
 
-    const generateInviteCode = () => {
-        // const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        // let code = '';
-        // for (let i = 0; i < 10; i++) {
-        //     code += chars.charAt(Math.floor(Math.random() * chars.length));
-        // }
-        setAdminPanelData({
-            ...adminPanelData,
-            // inviteCodes: [...adminPanelData.inviteCodes, code] 
-        });
-    };
+    // const generateInviteCode = () => {
+    //     // const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    //     // let code = '';
+    //     // for (let i = 0; i < 10; i++) {
+    //     //     code += chars.charAt(Math.floor(Math.random() * chars.length));
+    //     // }
+    //     setAdminPanelData({
+    //         ...adminPanelData,
+    //         // inviteCodes: [...adminPanelData.inviteCodes, code] 
+    //     });
+    // };
 
     // const copyInviteCode = async (code: string) => {
     //     await navigator.clipboard.writeText(code);
@@ -155,18 +154,18 @@ export function Settings() {
     const [showErrorLogs, setShowErrorLogs] = useState(false)
     const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
     const [isLoadingModels, setIsLoadingModels] = useState(false);
-    const [editingModel, setEditingModel] = useState<string | null>(null);
-    const [modelMetadata, setModelMetadata] = useState<{
-        tags: string[];
-        notes: string;
-        tasks: string[];
-        rating: number;
-    }>({
-        tags: [],
-        notes: '',
-        tasks: [],
-        rating: 0
-    });
+    // const [editingModel, setEditingModel] = useState<string | null>(null);
+    // const [modelMetadata, setModelMetadata] = useState<{
+    //     tags: string[];
+    //     notes: string;
+    //     tasks: string[];
+    //     rating: number;
+    // }>({
+    //     tags: [],
+    //     notes: '',
+    //     tasks: [],
+    //     rating: 0
+    // });
 
     const loadModels = async () => {
         setIsLoadingModels(true);
@@ -180,9 +179,9 @@ export function Settings() {
         }
     };
 
-    const handleAIConfigSave = () => {
-        updateConfig(aiConfig);
-    };
+    // const handleAIConfigSave = () => {
+    //     updateConfig(aiConfig);
+    // };
 
     const handleAIConfigReset = () => {
         if (window.confirm('Are you sure you want to reset to default settings?')) {
@@ -199,14 +198,15 @@ export function Settings() {
     };
 
     const handleEditModel = (modelName: string) => {
-        const metadata = getModelMetadataByName(modelName);
-        setModelMetadata({
-            tags: metadata?.tags || [],
-            notes: metadata?.notes || '',
-            tasks: metadata?.performance?.tasks || [],
-            rating: metadata?.performance?.rating || 0
-        });
-        setEditingModel(modelName);
+        console.log(modelName)
+        // const metadata = getModelMetadataByName(modelName);
+        // setModelMetadata({
+        //     tags: metadata?.tags || [],
+        //     notes: metadata?.notes || '',
+        //     tasks: metadata?.performance?.tasks || [],
+        //     rating: metadata?.performance?.rating || 0
+        // });
+        // setEditingModel(modelName);
     };
 
     const renderAISection = () => (

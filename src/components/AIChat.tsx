@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Send, Bot, Code, Copy, Check, Sparkles, Crown, Trash2, Share2, Settings, Plus, Edit2, Save } from 'lucide-react';
 import { generateText } from '@/utils/aiServices';
 import { AdminAISettings } from './AdminAISettings';
+import Link from 'next/link';
 
 interface AIChatProps {
   isPremium?: boolean;
@@ -281,13 +282,13 @@ export default function AIChat({ isPremium = false, isAdmin = false }: AIChatPro
               <span className="text-sm text-gray-700">Export and share indicators</span>
             </div>
           </div>
-          <a
+          <Link
             href="/subscription"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md"
           >
             <Crown className="w-5 h-5" />
             Upgrade to Premium
-          </a>
+          </Link>
         </div>
       </div>
     );
