@@ -1,7 +1,7 @@
 'use client';
 import React, { useContext, useEffect, useState } from 'react';
 import { Crown, ChevronDown, AlertTriangle, Eye, EyeOff, Check, Key, Settings, ArrowRight, HelpCircle, Users, Lock, BarChart2, TrendingUp, Clock, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { Tooltip } from '../components/Tooltip';
+import { Tooltip as TooltipCompnent } from '../components/Tooltip';
 import Image from 'next/image';
 import UserContext from '@/contexts/UserContext';
 import { AdminHook } from '@/types/admin-hook';
@@ -11,41 +11,25 @@ import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { Line } from 'react-chartjs-2';
 import { ApiSecurityWarning } from './common/ApiSecurityWarning';
+import moment from 'moment';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from "chart.js";
 
-const timeFrames = [
-  '5m',
-  '15m',
-  '30m',
-  '45m',
-  '1h',
-  '2h',
-  '3h',
-  '4h',
-  '1d'
-];
-
-const cryptoPairs = [
-  'SOL/USDT',
-  'BTC/USDT',
-  'ETH/USDT',
-];
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export function Premium() {
   const { user } = useContext(UserContext);
   const isPremium = !!(user?.subscribed === 1 && user.subscribeEndDate && new Date(user.subscribeEndDate).getTime() > Date.now());
 
   const [signals, setSignals] = useState<AdminHook[]>([]);
-  const [_signal, setSignal] = useState<AdminHook | null>(null);
-  const [webhook, setWebhook] = useState<Webhook>({
-    url: '',
-    name: '',
-    coinExApiKey: '',
-    coinExApiSecret: '',
-    tradeDirection: 'BOTH',
-    adminHook: _signal?._id,
-    status: 0,
-    amount: 0
-  });
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const [showApiConfig, setShowApiConfig] = useState<AdminHook | null>(null);
   const [expandedSignal, setExpandedSignal] = useState<string | null>(null);
@@ -221,9 +205,9 @@ export function Premium() {
                     }`}>
                     {signal.personalStats.pnl >= 0 ? '+' : ''}{signal.personalStats.pnlPercent.toFixed(2)}%
                   </span>
-                  <Tooltip content="Your total return on investment percentage since subscribing to this signal">
+                  <TooltipCompnent content="Your total return on investment percentage since subscribing to this signal">
                     <HelpCircle className="w-3 h-3 text-gray-400" />
-                  </Tooltip>
+                  </TooltipCompnent>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -249,9 +233,9 @@ export function Premium() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <p className="text-sm text-gray-500">Total Trades</p>
-                    <Tooltip content="Number of trades executed with this signal">
+                    <TooltipCompnent content="Number of trades executed with this signal">
                       <HelpCircle className="w-3 h-3 text-gray-400" />
-                    </Tooltip>
+                    </TooltipCompnent>
                   </div>
                   <p className="font-medium">{signal.personalStats.trades}</p>
                 </div>
@@ -260,41 +244,41 @@ export function Premium() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <p className="text-sm text-gray-500">Win Rate</p>
-                    <Tooltip content="Percentage of trades that resulted in profit">
+                    <TooltipCompnent content="Percentage of trades that resulted in profit">
                       <HelpCircle className="w-3 h-3 text-gray-400" />
-                    </Tooltip>
+                    </TooltipCompnent>
                   </div>
-                  <p className="font-medium">{signal.personalStats.winRate}</p>
+                  <p className="font-medium">{signal.personalStats.winRate}%</p>
                 </div>
               </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
+              {/* <div className="bg-gray-50 p-3 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <p className="text-sm text-gray-500">Avg Hold Time</p>
-                    <Tooltip content="Average duration between opening and closing positions">
+                    <TooltipCompnent content="Average duration between opening and closing positions">
                       <HelpCircle className="w-3 h-3 text-gray-400" />
-                    </Tooltip>
+                    </TooltipCompnent>
                   </div>
                   <p className="font-medium">{signal.personalStats.avgHoldTime}</p>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {signal.recentTrades && signal.recentTrades.length > 0 && (
               <div>
                 <div className="flex items-center gap-1 mb-2">
                   <h4 className="font-medium">Recent Trades</h4>
-                  <Tooltip content="Your most recent trades from this signal">
+                  <TooltipCompnent content="Your most recent trades from this signal">
                     <HelpCircle className="w-3 h-3 text-gray-400" />
-                  </Tooltip>
+                  </TooltipCompnent>
                 </div>
                 <div className="space-y-2">
                   {signal.recentTrades.map((trade, index) => (
                     <div key={index} className="bg-gray-50 p-3 rounded-lg flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`p-1 rounded-full ${trade.type === 'long' ? 'bg-green-100' : 'bg-red-100'
+                        <div className={`p-1 rounded-full ${trade.positionState === 'long' ? 'bg-green-100' : 'bg-red-100'
                           }`}>
-                          {trade.type === 'long' ? (
+                          {trade.positionState === 'long' ? (
                             <ArrowUpRight className="w-3 h-3 text-green-600" />
                           ) : (
                             <ArrowDownRight className="w-3 h-3 text-red-600" />
@@ -302,18 +286,18 @@ export function Premium() {
                         </div>
                         <div>
                           <p className="text-sm font-medium">
-                            {trade.type === 'long' ? 'Long' : 'Short'} @ ${trade.entry.toLocaleString()}
+                            {trade.positionState === 'long' ? 'Long' : 'Short'} @ {trade.data.data.amount.toLocaleString()}
                           </p>
-                          <p className="text-xs text-gray-500">{trade.date}</p>
+                          <p className="text-xs text-gray-500">{moment(trade.createdAt).format('YYYY-MM-DD hh:mm:ss')}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className={`text-sm font-medium ${trade.pnl >= 0 ? 'text-green-600' : 'text-red-600'
+                        <p className={`text-sm font-medium ${Number(trade.data.data.realized_pnl) >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
-                          {trade.pnl >= 0 ? '+' : ''}{trade.pnlPercent.toFixed(2)}%
+                          ${Number(trade.data.data.realized_pnl) > 0 ? '+' : ''}{Number(trade.data.data.realized_pnl)}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Exit: ${trade.exit.toLocaleString()}
+                          Exit: ${trade.data.data.last_filled_price.toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -330,9 +314,9 @@ export function Premium() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1">
                   <h4 className="font-medium text-indigo-800">Community Overview</h4>
-                  <Tooltip content="Statistics from all users following this signal">
+                  <TooltipCompnent content="Statistics from all users following this signal">
                     <HelpCircle className="w-3 h-3 text-gray-400" />
-                  </Tooltip>
+                  </TooltipCompnent>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -352,9 +336,9 @@ export function Premium() {
               <div className="bg-white border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center gap-1 mb-3">
                   <h4 className="font-medium">Last 24 Hours</h4>
-                  <Tooltip content="Performance metrics for the last 24 hours">
+                  <TooltipCompnent content="Performance metrics for the last 24 hours">
                     <HelpCircle className="w-3 h-3 text-gray-400" />
-                  </Tooltip>
+                  </TooltipCompnent>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -363,12 +347,12 @@ export function Premium() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Win Rate:</span>
-                    <span className="font-medium">{signal.communityStats.last24h.winRate}</span>
+                    <span className="font-medium">{signal.communityStats.last24h.winRate.toLocaleString()}%</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total PnL:</span>
-                    <span className="font-medium text-green-600 truncate">
-                      +${signal.communityStats.last24h.pnl.toLocaleString()}
+                    <span className={`font-medium ${signal.communityStats.last24h.pnl >= 0 ? 'text-green-600' : 'text-red-600'} truncate`}>
+                      ${signal.communityStats.last24h.pnl.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -377,9 +361,9 @@ export function Premium() {
               <div className="bg-white border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center gap-1 mb-3">
                   <h4 className="font-medium">Last 7 Days</h4>
-                  <Tooltip content="Performance metrics for the last 7 days">
+                  <TooltipCompnent content="Performance metrics for the last 7 days">
                     <HelpCircle className="w-3 h-3 text-gray-400" />
-                  </Tooltip>
+                  </TooltipCompnent>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between">
@@ -388,12 +372,12 @@ export function Premium() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Win Rate:</span>
-                    <span className="font-medium">{signal.communityStats.last7d.winRate}</span>
+                    <span className="font-medium">{signal.communityStats.last7d.winRate.toLocaleString()}%</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total PnL:</span>
-                    <span className="font-medium text-green-600 truncate">
-                      +${signal.communityStats.last7d.pnl.toLocaleString()}
+                    <span className={`font-medium ${signal.communityStats.last7d.pnl >= 0 ? 'text-green-600' : 'text-red-600'} truncate`}>
+                      ${signal.communityStats.last7d.pnl.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -403,9 +387,9 @@ export function Premium() {
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-1 mb-2">
                 <h4 className="font-medium">Signal Insights</h4>
-                <Tooltip content="Key metrics and insights about this signal's performance">
+                <TooltipCompnent content="Key metrics and insights about this signal's performance">
                   <HelpCircle className="w-3 h-3 text-gray-400" />
-                </Tooltip>
+                </TooltipCompnent>
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
@@ -508,7 +492,7 @@ export function Premium() {
             Premium Signals
             <Crown className="w-6 h-6 text-yellow-500" />
           </h1>
-          <Tooltip content="Configure and activate professional-grade trading signals with advanced market analysis." />
+          <TooltipCompnent content="Configure and activate professional-grade trading signals with advanced market analysis." />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {signals.map((signal) => (
@@ -532,14 +516,14 @@ export function Premium() {
                   `}>
                     <div className="flex items-center gap-1">
                       {signal.riskLevel} Risk
-                      <Tooltip content={`${signal.riskLevel} risk level: ${signal.riskLevel === 'High'
+                      <TooltipCompnent content={`${signal.riskLevel} risk level: ${signal.riskLevel === 'High'
                         ? 'More volatile with higher potential returns but greater risk of loss'
                         : signal.riskLevel === 'Medium'
                           ? 'Balanced risk-reward profile suitable for most traders'
                           : 'Conservative approach with lower returns but higher consistency'
                         }`}>
                         <HelpCircle className="w-3 h-3 text-current opacity-70" />
-                      </Tooltip>
+                      </TooltipCompnent>
                     </div>
                   </div>
                 </div>
@@ -550,56 +534,56 @@ export function Premium() {
                   <h3 className="text-lg font-semibold">{signal.pair}</h3>
                   <div className="flex items-center gap-1">
                     <span className="text-sm text-gray-500">{signal.timeframe}</span>
-                    <Tooltip content={`${signal.timeframe} timeframe: ${signal.timeframe === '5m'
+                    <TooltipCompnent content={`${signal.timeframe} timeframe: ${signal.timeframe === '5m'
                       ? 'Short-term scalping strategy with frequent trades'
                       : signal.timeframe === '1h'
                         ? 'Medium-term strategy balancing frequency and trend capture'
                         : 'Longer-term strategy focusing on capturing major market moves'
                       }`}>
                       <HelpCircle className="w-3 h-3 text-gray-400" />
-                    </Tooltip>
+                    </TooltipCompnent>
                   </div>
                 </div>
 
                 <p className="text-gray-600 mb-4">{signal.description}</p>
 
-                <div className="grid grid-cols-2 gap-2 text-center mb-4">
+                <div className="grid grid-cols-3 gap-2 text-center mb-4">
                   <div className="flex flex-col justify-between">
                     <div className="flex items-center justify-center gap-1">
                       <div className="text-sm text-gray-500">Win Rate</div>
-                      <Tooltip content="Percentage of trades that result in profit">
+                      <TooltipCompnent content="Percentage of trades that result in profit">
                         <HelpCircle className="w-3 h-3 text-gray-400" />
-                      </Tooltip>
+                      </TooltipCompnent>
                     </div>
                     <p className={`font-semibold ${signal.winRate && signal.winRate >= 0 ? 'text-green-600' : 'text-red-600'}`}>{signal.winRate?.toFixed(2) || 0}%</p>
                   </div>
                   <div className="flex flex-col justify-between">
                     <div className="flex items-center justify-center gap-1">
                       <div className="text-sm text-gray-500">Avg. Profit</div>
-                      <Tooltip content="Average profit per winning trade">
+                      <TooltipCompnent content="Average profit per winning trade">
                         <HelpCircle className="w-3 h-3 text-gray-400" />
-                      </Tooltip>
+                      </TooltipCompnent>
                     </div>
                     <p className={`font-semibold ${signal.avgPnl && signal.avgPnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>${signal.avgPnl?.toFixed(2) || 0}</p>
                   </div>
                   <div className="flex flex-col justify-between">
                     <div className="flex items-center justify-center gap-1">
                       <div className="text-sm text-gray-500">Signals</div>
-                      <Tooltip content="Total number of signals generated">
+                      <TooltipCompnent content="Total number of signals generated">
                         <HelpCircle className="w-3 h-3 text-gray-400" />
-                      </Tooltip>
+                      </TooltipCompnent>
                     </div>
                     <p className="font-semibold text-blue-600">{signal.signals}</p>
                   </div>
-                  <div className="flex flex-col justify-between">
+                  {/* <div className="flex flex-col justify-between">
                     <div className="flex items-center justify-center gap-1">
                       <div className="text-sm text-gray-500">24h History</div>
-                      <Tooltip content="History for 24 hours">
+                      <TooltipCompnent content="History for 24 hours">
                         <HelpCircle className="w-3 h-3 text-gray-400" />
-                      </Tooltip>
+                      </TooltipCompnent>
                     </div>
                     <p className="font-semibold text-blue-600">{signal.total24 || 0}</p>
-                  </div>
+                  </div> */}
                 </div>
 
                 {signal.personalStats && (
@@ -607,9 +591,9 @@ export function Premium() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <span className="text-sm text-blue-700">Your PnL</span>
-                        <Tooltip content="Your personal profit and loss from this signal">
+                        <TooltipCompnent content="Your personal profit and loss from this signal">
                           <HelpCircle className="w-3 h-3 text-blue-400" />
-                        </Tooltip>
+                        </TooltipCompnent>
                       </div>
                       <span className={`font-medium ${signal.personalStats.pnl >= 0 ? 'text-green-600' : 'text-red-600'
                         }`}>
@@ -752,9 +736,9 @@ export function Premium() {
                     <label className="block text-sm font-medium text-gray-700">
                       Trading Direction
                     </label>
-                    <Tooltip content="Choose which trade directions to follow: both long and short, only long (up), or only short (down)">
+                    <TooltipCompnent content="Choose which trade directions to follow: both long and short, only long (up), or only short (down)">
                       <HelpCircle className="w-3 h-3 text-gray-400" />
-                    </Tooltip>
+                    </TooltipCompnent>
                   </div>
                   <select
                     value={apiKeys[showApiConfig._id!]?.tradeDirection || 'Both'}
@@ -778,9 +762,9 @@ export function Premium() {
                       <label className="block text-sm font-medium text-gray-700">
                         Trade Amount
                       </label>
-                      <Tooltip content="The amount to trade for each signal. Can be a fixed USDT amount or a percentage of your available balance">
+                      <TooltipCompnent content="The amount to trade for each signal. Can be a fixed USDT amount or a percentage of your available balance">
                         <HelpCircle className="w-3 h-3 text-gray-400" />
-                      </Tooltip>
+                      </TooltipCompnent>
                     </div>
                     <input
                       type="text"
@@ -801,9 +785,9 @@ export function Premium() {
                       <label className="block text-sm font-medium text-gray-700">
                         Unit
                       </label>
-                      <Tooltip content="USDT for fixed amount, % for percentage of your available balance">
+                      <TooltipCompnent content="USDT for fixed amount, % for percentage of your available balance">
                         <HelpCircle className="w-3 h-3 text-gray-400" />
-                      </Tooltip>
+                      </TooltipCompnent>
                     </div>
                     <select
                       value={apiKeys[showApiConfig._id!]?.amountUnit || 'USDT'}

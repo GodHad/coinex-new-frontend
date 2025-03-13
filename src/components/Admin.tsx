@@ -56,7 +56,7 @@ export function AdminPanel() {
         {
             title: 'Total Users',
             value: overview?.totalUsers,
-            change: overview?.totalUsersChange ? convertPercent(overview?.totalUsersChange) : null,
+            change: overview?.totalUsersChange >= 0 ? convertPercent(overview?.totalUsersChange) : null,
             icon: <Users className="w-5 h-5" />,
             color: 'bg-blue-500'
         },
@@ -185,7 +185,7 @@ export function AdminPanel() {
                             <div className={`${stat.color} text-white p-3 rounded-lg`}>
                                 {stat.icon}
                             </div>
-                            {stat.change ?  
+                            {stat.change !== null ?  
                             <span className={`text-sm font-medium ${stat.change && stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
                                 }`}>
                                 {stat.change}
@@ -193,7 +193,7 @@ export function AdminPanel() {
                             : <LoadingSpinner className="w-4 h-4" />}
                         </div>
                         <h3 className="text-gray-500 text-sm font-medium">{stat.title}</h3>
-                        {stat.value ? <p className="text-2xl font-bold">{stat.value}</p> : <LoadingSpinner />}
+                        {stat.value !== null ? <p className="text-2xl font-bold">{stat.value}</p> : <LoadingSpinner />}
                     </div>
                 ))}
             </div>

@@ -640,7 +640,7 @@ export function Dashboard() {
                             </div>
                         </div>
                         <p className="text-3xl font-bold">
-                            ${user?.balance.total.toFixed(2)}
+                            ${(user?.balance?.total || 0).toFixed(2)}
                         </p>
                     </div>
 

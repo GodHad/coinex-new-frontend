@@ -23,30 +23,33 @@ export type AdminHook = {
         pnl: number;
         pnlPercent: number;
         trades: number;
-        winRate: string;
-        avgHoldTime: string;
+        winRate: number;
     }
     communityStats?: {
         activeUsers: number;
         totalUsers: number;
         last24h: {
             trades: number;
-            winRate: string;
+            winRate: number;
             pnl: number;
         };
         last7d: {
             trades: number;
-            winRate: string;
+            winRate: number;
             pnl: number;
         };
     }
     recentTrades?: {
-        date: string;
-        type: 'long' | 'short';
-        entry: number;
-        exit: number;
-        pnl: number;
-        pnlPercent: number;
+        createdAt: string;
+        positionState: string;
+        data: {
+            code: number;
+            data: {
+                amount: string;
+                realized_pnl: string;
+                last_filled_price: string;
+            }
+        }
     }[];
     performanceData?: {
         labels: string[];
