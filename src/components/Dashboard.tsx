@@ -200,14 +200,16 @@ export function Dashboard() {
         if (timeRange === '30d') days = 30;
     
         const labels = Array.from({ length: days }, (_, i) => {
-            return moment().subtract(i, 'days').format('MMM D');
+            return moment().subtract(i, 'days').format('YYYY-MM-DD');
         }).reverse();
-    
+
         const standardData = labels.map(date => pnlData?.standard[date] || 0);
         const premiumData = labels.map(date => pnlData?.premium[date] || 0);
     
         return {
-            labels,
+            labels: Array.from({ length: days }, (_, i) => {
+                return moment().subtract(i, 'days').format('MMM D');
+            }).reverse(),
             datasets: [
                 {
                     label: 'Standard Signals',
